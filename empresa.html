@@ -3,58 +3,139 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Terreno Seguro · Elegir empresa</title>
+<title>Terreno Seguro · Prevención de riesgos en un solo sistema</title>
+<meta name="description" content="Sistema de prevención de riesgos y trabajo en terreno para pymes chilenas: AST, charlas, inspecciones, EPP, matriz de riesgos y Ley Karin desde el celular.">
 <meta name="theme-color" content="#0E1F45">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
+  :root{--navy:#0E1F45;--navy2:#13306B;--azul:#1E9BFF;--azul2:#7cc4ff;--texto:#18203a;--muted:#667089;--borde:#dde2ee}
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;color:#fff;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  body{min-height:100vh;background-color:#0E1F45;background-image:linear-gradient(180deg,rgba(9,22,52,.3) 0%,rgba(9,22,52,.68) 45%,rgba(9,22,52,.95) 100%),url(fondo.jpg);
-       background-position:center,35% top;background-size:cover,cover;background-repeat:no-repeat;display:flex;align-items:flex-end}
-  main{width:100%;max-width:440px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));text-align:center}
-  .marca{width:min(260px,70vw);margin:0 auto 18px;display:block;filter:drop-shadow(0 4px 18px rgba(0,0,0,.45))}
-  form{background:rgba(255,255,255,.97);color:#18203a;border-radius:18px;padding:20px;text-align:left;box-shadow:0 12px 40px rgba(0,0,0,.35)}
-  label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
-  input{width:100%;font:inherit;font-size:20px;letter-spacing:.04em;padding:12px;border:1px solid #dde2ee;border-radius:10px;text-transform:lowercase}
-  input:focus{outline:2px solid #1E9BFF;border-color:#1E9BFF}
-  button{width:100%;margin-top:14px;font:inherit;font-weight:800;border:0;border-radius:10px;padding:14px;background:#1E9BFF;color:#fff;letter-spacing:.02em}
-  button:disabled{opacity:.6}
-  #msg{min-height:22px;margin-top:12px;font-weight:600;color:#c62828}
-  .ayuda{font-size:13px;color:#667089;margin-top:10px}
-  #actual{margin-top:16px;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.6)}#actual a{color:#7cc4ff}
-  @media (min-width:900px){
-    body{align-items:center;background-image:none}
-    body::before{content:"";position:fixed;inset:0 auto 0 0;width:min(58vw,80vh);background:url(fondo.jpg) center/cover no-repeat;
-      -webkit-mask-image:linear-gradient(90deg,#000 65%,transparent);mask-image:linear-gradient(90deg,#000 65%,transparent)}
-    main{position:relative;margin:0 8vw 0 auto}
+  html{background:var(--navy)}
+  html,body{margin:0;min-height:100%;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff}
+  body{background:transparent;position:relative;z-index:0}
+  body::before{content:"";position:fixed;inset:0;z-index:-2;background:url(fondo.jpg) 35% top/cover no-repeat}
+  body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,22,52,.25) 0%,rgba(9,22,52,.7) 38%,rgba(9,22,52,.96) 70%)}
+  .wrap{min-height:100vh;display:flex;flex-direction:column;padding:calc(22px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))}
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;gap:14px;max-width:560px;width:100%;margin:0 auto}
+  .marca{width:min(280px,72vw);filter:drop-shadow(0 4px 18px rgba(0,0,0,.5))}
+  .lema{letter-spacing:.32em;font-size:12px;font-weight:600;color:#dfe8ff;text-transform:uppercase;margin:-4px 0 4px}
+  .benef{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin:6px 0 10px}
+  .benef div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;line-height:1.2;color:#e8eeff}
+  .benef i{width:52px;height:52px;border-radius:50%;border:2px solid var(--azul);display:flex;align-items:center;justify-content:center;background:rgba(14,31,69,.55)}
+  .benef svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .card{width:100%;background:rgba(255,255,255,.97);color:var(--texto);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.4);overflow:hidden;text-align:left}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;background:#eef2fa}
+  .tabs button{font:inherit;font-weight:700;font-size:15px;border:0;background:transparent;color:var(--muted);padding:14px 8px;cursor:pointer;border-bottom:3px solid transparent}
+  .tabs button.on{background:#fff;color:var(--navy);border-bottom-color:var(--azul)}
+  .panel{padding:18px 18px 20px;display:none}.panel.on{display:block}
+  label{display:block;font-weight:700;font-size:13.5px;margin:0 0 5px}
+  input,select{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--borde);border-radius:10px;background:#fff;color:var(--texto);margin-bottom:10px}
+  #c{font-size:20px;letter-spacing:.04em;text-transform:lowercase}
+  input:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  .btn{display:block;width:100%;text-align:center;font:inherit;font-weight:800;border:0;border-radius:10px;padding:14px;background:var(--azul);color:#fff;cursor:pointer;text-decoration:none;letter-spacing:.02em}
+  .btn:disabled{opacity:.6}
+  .sec{display:block;text-align:center;margin-top:12px;font-size:14px;color:var(--navy2);font-weight:600}
+  .msg{min-height:20px;margin-top:10px;font-weight:600;color:#c62828;font-size:14px}
+  .ayuda{font-size:13px;color:var(--muted);margin:8px 0 0}
+  .ok{color:#1e8e4f}
+  #actual{font-size:14px;margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,.6)}#actual a{color:var(--azul2)}
+  .franja{display:none}
+  @media (max-width:420px){.benef div{font-size:11.5px}.benef i{width:46px;height:46px}}
+  @media (min-width:960px){
+    body::before{inset:0 auto 0 0;width:min(58vw,85vh);background-position:center;-webkit-mask-image:linear-gradient(90deg,#000 62%,transparent);mask-image:linear-gradient(90deg,#000 62%,transparent)}
+    body::after{background:linear-gradient(90deg,rgba(14,31,69,0) 0%,rgba(14,31,69,0) 35%,rgba(14,31,69,.6) 50%,rgba(14,31,69,0) 100%)}
+    .wrap{flex-direction:row;align-items:center;padding:40px 6vw}
+    .hero{margin:0 0 0 auto;justify-content:center;max-width:520px}
+    .franja{display:block;position:fixed;left:0;bottom:36px;padding:16px 34px 16px 30px;background:linear-gradient(90deg,#0b1a3d,#13306B);clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+      font-weight:900;font-size:22px;line-height:1.15;letter-spacing:.02em;text-transform:uppercase;box-shadow:0 -2px 0 var(--azul) inset}
+    .franja b{display:block;color:var(--azul);font-size:28px}
   }
 </style>
 </head>
 <body>
-<main>
-  <img class="marca" src="logo.svg" alt="Terreno Seguro · Prevención de riesgos">
-  <form id="f">
-    <label for="c">Código de tu empresa</label>
-    <input id="c" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ej. clopez" required>
-    <button id="b">Continuar</button>
-    <div id="msg"></div>
-    <div class="ayuda">El código te lo da tu empresa (prevención o administración). Se pide una sola vez en este teléfono.</div>
-  </form>
-  <div id="actual"></div>
-</main>
+<div class="wrap">
+  <main class="hero">
+    <img class="marca" src="logo.svg" alt="Terreno Seguro">
+    <div class="lema">Todo en un solo sistema</div>
+    <div class="benef">
+      <div><i><svg viewBox="0 0 24 24"><path d="M4 15a8 8 0 0 1 16 0"/><path d="M10 7.5V5h4v2.5"/><path d="M2.5 15h19v2.5h-19z"/></svg></i>Gestiona tus riesgos</div>
+      <div><i><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10l1.5 1.5 3-3M8.5 16l1.5 1.5 3-3"/></svg></i>Realiza inspecciones</div>
+      <div><i><svg viewBox="0 0 24 24"><path d="M4 20V14M9 20v-8M14 20v-5M19 20V9"/><path d="M4 10l5-4 4 3 6-5M16 4h3v3"/></svg></i>Mide y analiza</div>
+      <div><i><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><circle cx="5.5" cy="10" r="2.2"/><circle cx="18.5" cy="10" r="2.2"/><path d="M6.5 20a5.5 5.5 0 0 1 11 0M1.5 19a4 4 0 0 1 5-3.8M22.5 19a4 4 0 0 0-5-3.8"/></svg></i>Cuida a tu equipo</div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button type="button" id="tIn" class="on" onclick="tab('in')">Ingresar con mi empresa</button>
+        <button type="button" id="tCr" onclick="tab('cr')">Crear empresa</button>
+      </div>
+
+      <form class="panel on" id="pIn">
+        <label for="c">Código de tu empresa</label>
+        <input id="c" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ej. clopez" required>
+        <button class="btn" id="b">Entrar a la app</button>
+        <a class="sec" href="#" id="aPanel">Soy administrador: entrar al panel →</a>
+        <div class="msg" id="msg"></div>
+        <p class="ayuda">El código te lo da tu empresa (prevención o administración). Se pide una sola vez en este teléfono.</p>
+      </form>
+
+      <form class="panel" id="pCr">
+        <p class="ayuda" style="margin:0 0 12px">Cuéntanos de tu empresa y te contactamos para dejar tu sistema listo con tu logo, tus formularios y tu matriz de riesgos.</p>
+        <label for="cr_emp">Empresa</label><input id="cr_emp" required placeholder="Razón social o nombre">
+        <div class="g2">
+          <div><label for="cr_rub">Rubro</label><select id="cr_rub">
+            <option>Contratista minero</option><option>Construcción</option><option>Alimentos</option><option>Bodega, comercio o cosméticos</option>
+            <option>Proveedor de internet (ISP)</option><option>Otro</option></select></div>
+          <div><label for="cr_n">Trabajadores</label><select id="cr_n"><option>1 a 10</option><option>11 a 49</option><option>50 a 199</option><option>200 o más</option></select></div>
+        </div>
+        <label for="cr_nom">Tu nombre</label><input id="cr_nom" required placeholder="Nombre y cargo">
+        <div class="g2">
+          <div><label for="cr_tel">WhatsApp</label><input id="cr_tel" type="tel" required placeholder="+56 9 …"></div>
+          <div><label for="cr_mail">Correo</label><input id="cr_mail" type="email" placeholder="tu@empresa.cl"></div>
+        </div>
+        <button class="btn">Solicitar mi empresa</button>
+        <div class="msg" id="msgCr"></div>
+      </form>
+    </div>
+    <div id="actual"></div>
+  </main>
+</div>
+<div class="franja">Trabajemos juntos por un<b>entorno más seguro</b></div>
+
 <script>
-var f = document.getElementById('f'), inp = document.getElementById('c'), msg = document.getElementById('msg'), btn = document.getElementById('b');
+/* ===== Datos de contacto de Terreno Seguro (para "Crear empresa") ===== */
+var CONTACTO = { whatsapp: '', correo: '' };   // ej. whatsapp: '56912345678', correo: 'contacto@terrenoseguro.cl'
+
+var $ = function (s) { return document.getElementById(s); };
+function tab(t) {
+  $('tIn').classList.toggle('on', t === 'in'); $('tCr').classList.toggle('on', t === 'cr');
+  $('pIn').classList.toggle('on', t === 'in'); $('pCr').classList.toggle('on', t === 'cr');
+}
+var qs = new URLSearchParams(location.search);
+if (qs.has('crear') || location.hash === '#crear') tab('cr');
+
+/* ---- Ingresar con mi empresa ---- */
+var f = $('pIn'), inp = $('c'), msg = $('msg'), btn = $('b');
 var actual = null;
 try { actual = JSON.parse(localStorage.getItem('ts_empresa') || 'null'); } catch (e) {}
-if (actual && actual.marca) document.getElementById('actual').innerHTML = 'Empresa actual: <b>' + actual.marca.replace(/</g, '&lt;') + '</b> · <a href="./">volver</a>';
-var q = new URLSearchParams(location.search).get('c');
+if (actual && actual.marca) $('actual').innerHTML = 'Empresa en este equipo: <b>' + actual.marca.replace(/</g, '&lt;') + '</b> · <a href="./">abrir la app</a>';
+var q = qs.get('c');
 if (q) { inp.value = q; setTimeout(function () { f.requestSubmit ? f.requestSubmit() : f.onsubmit(new Event('submit')); }, 50); }
+
+function codigo() { return inp.value.trim().toLowerCase().replace(/[^a-z0-9]/g, ''); }
+$('aPanel').onclick = function (ev) {
+  ev.preventDefault();
+  var cod = codigo();
+  if (!cod) { msg.textContent = 'Escribe primero el código de tu empresa.'; inp.focus(); return; }
+  location.href = 'panel/?c=' + encodeURIComponent(cod);
+};
 
 f.onsubmit = function (ev) {
   if (ev && ev.preventDefault) ev.preventDefault();
-  var cod = inp.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  var cod = codigo();
   if (!cod) return;
   msg.textContent = ''; btn.disabled = true; btn.textContent = 'Buscando…';
   fetch('empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (lista) {
@@ -76,8 +157,19 @@ f.onsubmit = function (ev) {
     location.replace('./');
   }).catch(function (e) {
     msg.textContent = navigator.onLine ? (e.message || 'No se pudo conectar.') : 'Sin señal: necesitas internet la primera vez.';
-    btn.disabled = false; btn.textContent = 'Continuar';
+    btn.disabled = false; btn.textContent = 'Entrar a la app';
   });
+};
+
+/* ---- Crear empresa: envía la solicitud por WhatsApp (o correo) ---- */
+$('pCr').onsubmit = function (ev) {
+  ev.preventDefault();
+  var t = 'Hola, quiero crear mi empresa en Terreno Seguro.\n' +
+    'Empresa: ' + $('cr_emp').value + '\nRubro: ' + $('cr_rub').value + '\nTrabajadores: ' + $('cr_n').value +
+    '\nContacto: ' + $('cr_nom').value + '\nWhatsApp: ' + $('cr_tel').value + ($('cr_mail').value ? '\nCorreo: ' + $('cr_mail').value : '');
+  if (CONTACTO.whatsapp) location.href = 'https://wa.me/' + CONTACTO.whatsapp + '?text=' + encodeURIComponent(t);
+  else if (CONTACTO.correo) location.href = 'mailto:' + CONTACTO.correo + '?subject=' + encodeURIComponent('Crear empresa en Terreno Seguro') + '&body=' + encodeURIComponent(t);
+  else $('msgCr').textContent = 'Falta configurar el contacto de Terreno Seguro.';
 };
 </script>
 </body>
