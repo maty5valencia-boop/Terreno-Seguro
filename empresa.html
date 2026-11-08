@@ -140,14 +140,14 @@ function buscarEmpresa(cod) {
     if (e && e.url) {
       var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
       return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
-        if (i && !i.alta && !i.error) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; }
+        if (i && !i.alta && !i.error) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; datos.fondo = i.fondo || ''; }
         return datos;
       }).catch(function () { return datos; });
     }
     if (!l._plataforma) throw new Error('No encontramos ese código. Revísalo con tu empresa.');
     return fetch(l._plataforma + '?p=info&e=' + encodeURIComponent(cod)).then(function (r) { return r.json(); }).then(function (i) {
       if (!i || i.error || i.ok === false) throw new Error((i && i.error) || 'No encontramos ese código. Revísalo con tu empresa.');
-      return { codigo: cod, url: l._plataforma, plataforma: true, marca: i.marca || cod, logo: i.logo || '', colores: i.colores || {}, vocab: i.vocab || {}, apagados: i.apagados || [] };
+      return { codigo: cod, url: l._plataforma, plataforma: true, marca: i.marca || cod, logo: i.logo || '', colores: i.colores || {}, vocab: i.vocab || {}, apagados: i.apagados || [], fondo: i.fondo || '' };
     });
   });
 }
