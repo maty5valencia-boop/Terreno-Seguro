@@ -5,5 +5,9 @@
     "url": "https://script.google.com/macros/s/AKfycbxa8Q3m3mMfz7a2W1ZrcAss1dMlR0ekkygAhk0Bsc6snt1Qj5V7ei-t34nGEhhp-Y1Ldg/exec",
     "color": "#23306b",
     "acento": "#F28C28"
+  },
+  "demo": {
+    "nombre": "Empresa Demo",
+    "url": "https://script.google.com/macros/s/AKfycbwnNuhOOoFTcEcvJFwIHPl-otniUel_-4GGJq6VJyD9G9Q4EKQgimWRz7xGLY0OjjVN/exec"
   }
 }
