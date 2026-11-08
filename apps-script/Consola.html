@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consola · Terreno Seguro</title>
+<style>
+:root{--navy:#0E1F45;--azul:#1E9BFF;--fondo:#f2f4f9;--texto:#18203a;--muted:#667089;--borde:#dde2ee;--ok:#1e8e4f;--okbg:#e3f5ea;--mal:#c62828;--malbg:#fde7e7;--warn:#b26a00;--warnbg:#fff3dc}
+*{box-sizing:border-box}
+body{margin:0;font:14.5px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--fondo);color:var(--texto)}
+header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px}
+header b{font-size:17px;letter-spacing:.02em}header span{color:#9fb3e6;font-size:13px}
+header .sp{flex:1}
+header a{color:#cfe3ff;font-size:13px}
+main{max-width:1200px;margin:18px auto;padding:0 14px}
+.card{background:#fff;border:1px solid var(--borde);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:16px;border-left:4px solid var(--azul);padding-left:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:12px;border-top:3px solid var(--azul)}
+.kpi b{display:block;font-size:24px}.kpi span{color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--borde);vertical-align:middle;font-size:13.5px}
+th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:700}
+.ACTIVA{background:var(--okbg);color:var(--ok)}.PRUEBA{background:#e6f1ff;color:#1559a8}.SUSPENDIDA{background:var(--malbg);color:var(--mal)}
+.MODELO{background:#efe7ff;color:#5b2fb3}.ERROR,.CREANDO{background:var(--warnbg);color:var(--warn)}
+.vencida{color:var(--mal);font-weight:700}
+button,.btn{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--borde);background:#fff;color:var(--navy);border-radius:8px;padding:6px 10px;cursor:pointer;text-decoration:none;display:inline-block}
+button.pri,.btn.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+button:disabled{opacity:.5;cursor:wait}
+.acc{display:flex;gap:6px;flex-wrap:wrap}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--borde);border-radius:8px}
+.login{max-width:340px;margin:12vh auto;text-align:center}
+.login input{width:100%;font-size:22px;letter-spacing:.3em;text-align:center;margin:12px 0}
+.login button{width:100%;padding:12px}
+.muted{color:var(--muted)}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;display:none;z-index:9}
+.filtro{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+@media (max-width:760px){.oc{display:none}}
+</style>
+</head>
+<body>
+<header><b>TERRENO SEGURO</b><span>Consola de la plataforma</span><div class="sp"></div><a href="#" id="salir" style="display:none" onclick="salir()">Salir</a></header>
+<main id="m"></main>
+<div id="toast"></div>
+<script>
+var T = null, D = null;
+try { T = sessionStorage.getItem('ts_consola'); } catch (e) {}
+function $(s) { return document.querySelector(s); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function toast(m) { var t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 3500); }
+function api(fn) {
+  var args = [].slice.call(arguments, 1);
+  return new Promise(function (ok, mal) { google.script.run.withSuccessHandler(ok).withFailureHandler(mal)[fn].apply(null, args); })
+    .catch(function (e) { if (/SESION_EXPIRADA/.test(e.message)) { salir(); } throw e; });
+}
+function salir() { T = null; try { sessionStorage.removeItem('ts_consola'); } catch (e) {} login(); }
+
+function login() {
+  $('#salir').style.display = 'none';
+  $('#m').innerHTML = '<div class="card login"><h2 style="border:0;padding:0">Consola</h2><p class="muted">PIN de la consola (aparece al ejecutar instalarPlataforma)</p>' +
+    '<input id="pin" type="password" inputmode="numeric" autocomplete="current-password"><button class="pri" id="bl">Entrar</button><p id="er" style="color:var(--mal)"></p></div>';
+  $('#pin').focus();
+  var go = function () {
+    $('#bl').disabled = true;
+    api('apiConsolaLogin', $('#pin').value).then(function (r) { T = r.token; try { sessionStorage.setItem('ts_consola', T); } catch (e) {} cargar(); })
+      .catch(function (e) { $('#er').textContent = e.message; $('#bl').disabled = false; });
+  };
+  $('#bl').onclick = go; $('#pin').onkeydown = function (e) { if (e.key === 'Enter') go(); };
+}
+
+function cargar() { api('apiConsola', T).then(pintar).catch(function (e) { toast(e.message); }); }
+var FILTRO = '';
+function pintar(d) {
+  D = d; $('#salir').style.display = '';
+  var E = d.empresas, cl = E.filter(function (e) { return e.modelo !== 'SI'; }), mod = E.filter(function (e) { return e.modelo === 'SI'; });
+  var cuenta = function (s) { return cl.filter(function (e) { return e.estado === s; }).length; };
+  var rubroN = {}; d.rubros.forEach(function (r) { rubroN[r[0]] = r[1]; });
+  var lista = cl.filter(function (e) { return !FILTRO || e.estado === FILTRO; });
+  var fila = function (e) {
+    var vencida = e.estado === 'PRUEBA' && e.vence && e.vence < d.hoy;
+    return '<tr><td><b>' + esc(e.nombre) + '</b><br><span class="muted">' + esc(e.codigo) + '</span></td>' +
+      '<td class="oc">' + esc(rubroN[e.rubro] || e.rubro) + '</td>' +
+      '<td><span class="chip ' + esc(e.estado) + '">' + esc(e.estado) + '</span>' + (e.estado === 'PRUEBA' ? '<br><span class="' + (vencida ? 'vencida' : 'muted') + '">hasta ' + esc(e.vence) + '</span>' : '') + '</td>' +
+      '<td class="oc">' + esc(e.contacto) + '<br><span class="muted">' + esc(e.telefono) + ' ' + esc(e.correo) + '</span></td>' +
+      '<td class="oc">' + esc(String(e.creado).slice(0, 10)) + '</td>' +
+      '<td><div class="acc">' +
+        (e.estado === 'ERROR' ? '<span class="muted">' + esc(e.notas) + '</span>' :
+        '<button class="pri" onclick="entrar(\'' + e.codigo + '\')">Entrar al panel</button>' +
+        (e.estado !== 'ACTIVA' ? '<button onclick="estado(\'' + e.codigo + '\',\'ACTIVA\')">Activar</button>' : '') +
+        (e.estado !== 'SUSPENDIDA' ? '<button onclick="estado(\'' + e.codigo + '\',\'SUSPENDIDA\')">Suspender</button>' : '') +
+        '<button onclick="prueba(\'' + e.codigo + '\')">+30 días de prueba</button>' +
+        (e.ss_url ? '<a class="btn" target="_blank" href="' + esc(e.ss_url) + '">Planilla</a>' : '') +
+        (e.drive_url ? '<a class="btn" target="_blank" href="' + esc(e.drive_url) + '">Drive</a>' : '')) +
+      '</div></td></tr>';
+  };
+  $('#m').innerHTML =
+    '<div class="kpis"><div class="kpi"><b>' + cl.length + '</b><span>Empresas</span></div><div class="kpi"><b>' + cuenta('ACTIVA') + '</b><span>Activas (pagando)</span></div>' +
+    '<div class="kpi"><b>' + cuenta('PRUEBA') + '</b><span>En prueba</span></div><div class="kpi"><b>' + cuenta('SUSPENDIDA') + '</b><span>Suspendidas</span></div></div>' +
+    '<div class="card"><h2>Empresas</h2><div class="filtro">' + ['', 'PRUEBA', 'ACTIVA', 'SUSPENDIDA', 'ERROR'].map(function (s) {
+      return '<button class="' + (FILTRO === s ? 'pri' : '') + '" onclick="FILTRO=\'' + s + '\';pintar(D)">' + (s || 'Todas') + '</button>'; }).join('') +
+      '<span class="sp" style="flex:1"></span><a class="btn" target="_blank" href="' + esc(d.web) + 'empresa.html#crear">Abrir portada (crear empresa)</a>' +
+      '<a class="btn" target="_blank" href="' + esc(d.registro) + '">Registro (planilla)</a></div>' +
+      (lista.length ? '<table><tr><th>Empresa</th><th class="oc">Rubro</th><th>Estado</th><th class="oc">Contacto</th><th class="oc">Creada</th><th></th></tr>' + lista.map(fila).join('') + '</table>'
+        : '<p class="muted">No hay empresas ' + (FILTRO ? 'en ese estado' : 'todavía') + '. Se crean desde la portada.</p>') + '</div>' +
+    '<div class="card"><h2>Plantillas por rubro (empresas modelo)</h2>' +
+      '<p class="muted" style="margin-top:0">Cada rubro tiene una empresa modelo. Entra a su panel y edita los <b>Formularios</b>, la <b>Matriz de riesgos</b>, los <b>Cursos</b>, las plantillas de tickets y la <b>Configuración</b> (nombres, módulos, formularios diarios). ' +
+      'Cada empresa nueva de ese rubro parte con una copia de lo que tenga su modelo. Las empresas que ya existen no cambian.</p>' +
+      '<table><tr><th>Rubro</th><th>Modelo</th><th></th></tr>' + d.rubros.map(function (r) {
+        var m = mod.filter(function (x) { return x.rubro === r[0]; })[0];
+        return '<tr><td><b>' + esc(r[1]) + '</b></td><td>' + (m ? '<span class="muted">' + esc(m.codigo) + '</span>' : '<span class="muted">sin modelo (usa la plantilla base del rubro)</span>') + '</td><td><div class="acc">' +
+          (m ? '<button class="pri" onclick="entrar(\'' + m.codigo + '\')">Editar plantilla</button>' + (m.ss_url ? '<a class="btn" target="_blank" href="' + esc(m.ss_url) + '">Planilla</a>' : '') : '') + '</div></td></tr>';
+      }).join('') + '</table>' +
+      (mod.length < d.rubros.length ? '<p><button class="pri" id="bm" onclick="modelos()">Crear las empresas modelo que faltan</button> <span class="muted">(tarda unos segundos por rubro)</span></p>' : '') + '</div>';
+}
+function entrar(c) {
+  var w = window.open('about:blank', '_blank');
+  api('apiConsolaEntrar', T, c).then(function (r) { if (w) w.location = r.url; else location.href = r.url; }).catch(function (e) { if (w) w.close(); toast(e.message); });
+}
+function estado(c, s) {
+  if (s === 'SUSPENDIDA' && !confirm('¿Suspender ' + c + '? Sus usuarios no podrán entrar hasta que la actives.')) return;
+  api('apiConsolaEstado', T, c, s, '').then(function (d) { pintar(d); toast('Listo ✓'); }).catch(function (e) { toast(e.message); });
+}
+function prueba(c) {
+  var e = D.empresas.filter(function (x) { return x.codigo === c; })[0], base = (e && e.vence && e.vence > D.hoy) ? new Date(e.vence + 'T12:00:00') : new Date();
+  base.setDate(base.getDate() + 30);
+  var v = base.toISOString().slice(0, 10);
+  api('apiConsolaEstado', T, c, 'PRUEBA', v).then(function (d) { pintar(d); toast('Prueba hasta ' + v + ' ✓'); }).catch(function (e) { toast(e.message); });
+}
+function modelos() {
+  $('#bm').disabled = true; $('#bm').textContent = 'Creando… (puede tardar 1 o 2 minutos)';
+  api('apiConsolaCrearModelos', T).then(function (d) { pintar(d); toast((d.creados || []).length + ' modelos creados ✓'); })
+    .catch(function (e) { toast(e.message); cargar(); });
+}
+if (T) cargar(); else login();
+</script>
+</body>
+</html>

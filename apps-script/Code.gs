@@ -25,34 +25,33 @@ var URL_APP = '';     // se define por empresa en CONFIG (url_app / url_panel)
 var URL_PANEL = '';
 /** Enlaces de la app y del panel: los de la página propia (GitHub) o, si no hay, los del script. */
 function cfgUrl_(k) { try { return String(cfg_()[k] || '').trim(); } catch (e) { return ''; } }
-function urlApp_() { return cfgUrl_('url_app') || URL_APP || ScriptApp.getService().getUrl(); }
-function urlPanel_() { return cfgUrl_('url_panel') || URL_PANEL || ScriptApp.getService().getUrl() + '?p=admin'; }
+function urlApp_() { return cfgUrl_('url_app') || URL_APP || urlSis_(''); }
+function urlPanel_() { return cfgUrl_('url_panel') || URL_PANEL || urlSis_('p=admin'); }
 function comunas_() { var c = {}; try { c = cfg_(); } catch (e) {} return String(c.comunas || '').split(',').map(function (x) { return x.trim(); }).filter(String); }
 // Logo de la empresa para la app, el panel y los PDF.
-// Se guarda en la propiedad LOGO_B64 (lo sube el asistente de alta o Configuración).
-// Si no hay, se busca un archivo "logo.png" o "logo.jpg" en la carpeta raíz del sistema.
+// Es el archivo "logo.png" o "logo.jpg" de la carpeta raíz de la empresa (lo sube el alta o Configuración).
 function logo_() {
   if (_M.logo) return _M.logo;
-  var pr = props_(), b = pr.getProperty('LOGO_B64'), mime = pr.getProperty('LOGO_MIME') || 'image/png';
-  if (!b && pr.getProperty('ROOT_ID')) {
+  var c = cache_(), b = c.get('logo_b64'), mime = c.get('logo_mime') || 'image/png';
+  if (b === null) {
+    b = '';
     try {
-      var it = DriveApp.getFolderById(pr.getProperty('ROOT_ID')).searchFiles("title contains 'logo' and trashed = false");
-      while (it.hasNext()) {
-        var f = it.next();
-        if (/^logo\.(png|jpe?g)$/i.test(f.getName())) {
-          var bl = f.getBlob(); mime = bl.getContentType(); b = Utilities.base64Encode(bl.getBytes());
-          if (b.length < 400000) { pr.setProperty('LOGO_B64', b); pr.setProperty('LOGO_MIME', mime); }
-          break;
+      if (props_().getProperty('ROOT_ID')) {
+        var it = raiz_().searchFiles("title contains 'logo' and trashed = false");
+        while (it.hasNext()) {
+          var f = it.next();
+          if (/^logo\.(png|jpe?g)$/i.test(f.getName())) { var bl = f.getBlob(); mime = bl.getContentType(); b = Utilities.base64Encode(bl.getBytes()); break; }
         }
       }
     } catch (e) {}
+    if (b.length < 95000) { c.put('logo_b64', b, 21600); c.put('logo_mime', mime, 21600); }
   }
   return (_M.logo = { b64: b || '', mime: mime });
 }
 function logoSrc_() { var l = logo_(); return l.b64 ? 'data:' + l.mime + ';base64,' + l.b64 : LOGO_GENERICO; }
 function logoImg_(h) { return '<img src="' + logoSrc_() + '" style="height:' + (h || 70) + 'px">'; }
 /** Logo neutro (escudo) para empresas sin logo cargado. */
-var LOGO_GENERICO = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjMjMzMDZiIi8+PHBhdGggZD0iTTUwIDE2IDc4IDI3djIwYzAgMTgtMTIgMzEtMjggMzctMTYtNi0yOC0xOS0yOC0zN1YyN3oiIGZpbGw9IiNGMjhDMjgiLz48cGF0aCBkPSJtMzcgNTAgOSA5IDE4LTE5IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+';
+var LOGO_GENERICO = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxMzMwNkIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTE4MzUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMiIgZmlsbD0idXJsKCNnKSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMuNjAwMDAwMDAwMDAwMDAxNCAxNi45NDAwMDAwMDAwMDAwMDUpIHNjYWxlKDAuNTgpIj4KICA8cGF0aCBkPSJNMiA5NCBMNDAgNTIgTDU0IDY3IEw5NCAxOCBMMTM0IDY2IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik02NCA4MCBMOTQgNDggTDExNCA3MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik0xMTAgNDAgTDEzNCAzMSBMMTU4IDQwIFY2MCBDMTU4IDc3IDE0NyA4OCAxMzQgOTUgQzEyMSA4OCAxMTAgNzcgMTEwIDYwIFoiIGZpbGw9IiMwRjI3NTYiIHN0cm9rZT0iIzFFOUJGRiIgc3Ryb2tlLXdpZHRoPSI2LjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTIyIDYxIEwxMzEgNzAgTDE0NyA1MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUU5QkZGIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+PC9zdmc+';
 var ROLES_PANEL = ['admin', 'editor', 'soporte', 'prevencionista'];
 var ROLES_EDITOR = ['admin', 'editor', 'prevencionista'];
 var ROLES_GESTION = ['admin', 'editor'];   // gastos, fondos y usuarios (no prevencionista)
@@ -152,9 +151,10 @@ var CONFIG_INICIAL = [
   ['empresa', '', 'Razón social que aparece en los PDF'],
   ['marca', '', 'Nombre que aparece en la app'],
   ['codigo_empresa', '', 'Código corto de la empresa (lo escribe el técnico en la app la primera vez)'],
-  ['rubro', '', 'ISP · CONTRATISTA · CONSTRUCCION · OTRO'],
-  ['color_primario', '#23306b', 'Color principal de la app y el panel'],
-  ['color_acento', '#F28C28', 'Color de acento (botones y marcas)'],
+  ['rubro', '', 'Rubro de la empresa (ISP, MINERIA, CONSTRUCCION, ALIMENTOS, BODEGA u OTRO): define formularios, cursos, matriz y nombres'],
+  ['vocabulario', '', 'Nombres propios de la empresa en JSON, ej. {"tickets":"Órdenes de trabajo","clientes":"Mandantes"} (vacío = los del rubro)'],
+  ['color_primario', '#13306B', 'Color principal de la app y el panel'],
+  ['color_acento', '#1E9BFF', 'Color de acento (botones y marcas)'],
   ['modulos_apagados', '[]', 'Pestañas del panel que esta empresa no usa (nadie las ve, ni el admin)'],
   ['dias_prestamo', '7', 'Días de préstamo de un equipo de medición antes de avisar en el correo diario'],
   ['correo_notificaciones', '', 'Correo(s) que reciben los registros, separados por coma'],
@@ -776,6 +776,7 @@ function agregarFirmaATodos() {
 function doGet(e) {
   var p = (e && e.parameter && e.parameter.p) || 'tecnico';
   if (p === 'ping') return HtmlService.createHtmlOutput('ok').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  if (modoPlataforma_()) { var pg = getPlataforma_(e, p); if (pg) return pg; }
   if (p === 'info') return ContentService.createTextOutput(JSON.stringify(necesitaAlta_() ? { alta: true } : apiInfo())).setMimeType(ContentService.MimeType.JSON);
   if (necesitaAlta_()) return HtmlService.createHtmlOutputFromFile('Alta').setTitle('Crear mi empresa · Terreno Seguro')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
@@ -792,6 +793,7 @@ function doGet(e) {
 
 /** true si esta copia todavía no tiene empresa instalada (o es una copia de otra instalación). */
 function necesitaAlta_() {
+  if (modoPlataforma_()) return !EMP || !props_().getProperty('SS_ID');
   var pr = props_(), sid = pr.getProperty('SCRIPT_ID');
   if (sid && sid !== ScriptApp.getScriptId()) return true;     // copia de otro proyecto: no usar sus datos
   if (!pr.getProperty('SS_ID')) return true;
@@ -800,7 +802,7 @@ function necesitaAlta_() {
 }
 function colores_(c) {
   var ok = function (x, d) { x = String(x || '').trim(); return /^#[0-9a-fA-F]{6}$/.test(x) ? x : d; };
-  return { primario: ok(c.color_primario, '#23306b'), acento: ok(c.color_acento, '#F28C28') };
+  return { primario: ok(c.color_primario, '#13306B'), acento: ok(c.color_acento, '#1E9BFF') };
 }
 /** Pone los colores y el logo de la empresa en el HTML de la app y del panel. */
 function marcarHtml_(html) {
@@ -809,7 +811,7 @@ function marcarHtml_(html) {
   if (col.acento.toLowerCase() !== '#f28c28') html = html.replace(/#F28C28/gi, col.acento);
   if (col.primario.toLowerCase() !== '#23306b') html = html.replace(/#23306b/gi, col.primario);
   var marca = esc_(c.marca || 'Terreno Seguro');
-  return html.replace('<head>', '<head><script>window.LOGO_EMPRESA=' + JSON.stringify(logoSrc_()) + ';window.MARCA_EMPRESA=' + JSON.stringify(c.marca || 'Terreno Seguro') + ';</script>')
+  return html.replace('<head>', '<head><script>window.EMPRESA_COD=' + JSON.stringify(EMP ? EMP.codigo : '') + ';window.LOGO_EMPRESA=' + JSON.stringify(logoSrc_()) + ';window.MARCA_EMPRESA=' + JSON.stringify(c.marca || 'Terreno Seguro') + ';window.VOCAB=' + JSON.stringify(vocab_(c)) + ';window.APAGADOS=' + JSON.stringify(apagados_(c)) + ';window.RUBRO_PANEL=' + JSON.stringify(rubroDef_(c).panel || null) + ';</script>')
     .replace(/__LOGO_EMPRESA__/g, logoSrc_()).replace(/__MARCA_EMPRESA__/g, marca);
 }
 
@@ -820,13 +822,11 @@ var MODULOS = [
   ['equipos', 'Equipos con serie (routers, ONT)', 'Inventario'], ['bodega', 'Bodega', 'Inventario'], ['prestamos', 'Préstamos de herramientas', 'Inventario'],
   ['vehiculos', 'Vehículos', 'Inventario'], ['gastos', 'Gastos y rendiciones', 'Gestión']
 ];
-/** Módulos apagados por defecto según el rubro. */
-var APAGADOS_RUBRO = { ISP: [], CONTRATISTA: ['equipos', 'fallas'], CONSTRUCCION: ['equipos', 'fallas', 'clientes'], OTRO: ['equipos', 'fallas'] };
 
 /** Datos para dibujar el asistente de alta. */
 function apiAltaInfo() {
   if (!necesitaAlta_()) throw new Error('Esta empresa ya está creada. Entra al panel.');
-  return { modulos: MODULOS, apagadosRubro: APAGADOS_RUBRO };
+  return { modulos: MODULOS, apagadosRubro: apagadosRubro_(), rubros: listaRubros_() };
 }
 /**
  * Crea la empresa: planilla, carpetas, configuración, logo y usuario administrador.
@@ -837,77 +837,85 @@ function apiAlta(d) {
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) throw new Error('Otra persona está creando la empresa. Intenta en un minuto.');
   try {
+    if (modoPlataforma_()) throw new Error('En la plataforma las empresas se crean desde la portada.');
     if (!necesitaAlta_()) throw new Error('Esta empresa ya está creada. Entra al panel.');
-    d = d || {};
-    var req = function (v, n) { v = String(v || '').trim(); if (!v) throw new Error('Falta: ' + n); return v; };
-    var empresa = req(d.empresa, 'razón social'), marca = req(d.marca, 'nombre de la empresa en la app');
-    var codigo = req(d.codigo, 'código de empresa').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
-    if (codigo.length < 3) throw new Error('El código debe tener al menos 3 letras o números.');
-    var a = d.admin || {}, rutAdm = normRut_(req(a.rut, 'RUT del administrador')), pin = req(a.pin, 'PIN del administrador');
-    if (!/^\d{4,8}$/.test(pin)) throw new Error('El PIN debe tener de 4 a 8 números.');
-    if (/^(\d)\1+$/.test(pin) || '0123456789'.indexOf(pin) >= 0) throw new Error('Elige un PIN menos obvio.');
-    var rubro = ['ISP', 'CONTRATISTA', 'CONSTRUCCION', 'OTRO'].indexOf(String(d.rubro || '').toUpperCase()) >= 0 ? String(d.rubro).toUpperCase() : 'OTRO';
-    var validos = MODULOS.map(function (m) { return m[0]; });
-    var apagados = [].concat(d.apagados || []).map(String).filter(function (t) { return validos.indexOf(t) >= 0; });
-
     // Copia de otra instalación: se olvidan sus datos antes de crear los propios
     var pr = props_();
-    if (pr.getProperty('SCRIPT_ID') !== ScriptApp.getScriptId()) ['ROOT_ID', 'SS_ID', 'LOGO_B64', 'LOGO_MIME', 'SALT'].forEach(function (k) { pr.deleteProperty(k); });
-    if (d.logo && d.logo.data) {
-      var b64 = String(d.logo.data).replace(/^data:[^,]*,/, '');
-      if (b64.length > 400000) throw new Error('El logo es muy pesado: usa una imagen de menos de 250 KB.');
-      pr.setProperty('LOGO_B64', b64); pr.setProperty('LOGO_MIME', /^image\/(png|jpeg)$/.test(d.logo.mime) ? d.logo.mime : 'image/png');
-    }
-
-    setup(marca);
-    _M = { ss: null, hojas: {}, filas: {} };
-    var col = colores_({ color_primario: d.color_primario, color_acento: d.color_acento });
-    var valores = { empresa: empresa, marca: marca, razon_social: empresa, rut_empresa: String(d.rut_empresa || '').trim(), codigo_empresa: codigo, rubro: rubro,
-      ciudad: String(d.ciudad || '').trim(), comunas: String(d.comunas || '').trim(), representante: String(d.representante || '').trim(),
-      color_primario: col.primario, color_acento: col.acento, modulos_apagados: JSON.stringify(apagados) };
-    if (d.correo) valores.correo_notificaciones = String(d.correo).trim();
-    Object.keys(valores).forEach(function (k) { setCfg_(k, valores[k]); });
-    if (pr.getProperty('LOGO_B64')) { try { var bl = Utilities.newBlob(Utilities.base64Decode(pr.getProperty('LOGO_B64')), pr.getProperty('LOGO_MIME'), 'logo.' + (pr.getProperty('LOGO_MIME') === 'image/jpeg' ? 'jpg' : 'png')); raiz_().createFile(bl); } catch (e) {} }
-
-    // Administrador: reemplaza al usuario inicial ADMIN / 1234
-    var adm = { rut: rutAdm, nombre: String(a.nombre || 'Administrador').trim(), cargo: String(a.cargo || 'Administrador').trim(), rol: 'admin', pin_hash: hash_(pin),
-      email: String(a.email || d.correo || '').trim(), telefono: String(a.telefono || '').trim(), activo: 'SI', creado: new Date() };
-    var ini = rows_('USUARIOS').filter(function (u) { return String(u.rut).toUpperCase() === 'ADMIN'; })[0];
-    if (ini) update_('USUARIOS', ini._row, adm); else append_('USUARIOS', adm);
-
+    if (pr.getProperty('SCRIPT_ID') !== ScriptApp.getScriptId()) ['ROOT_ID', 'SS_ID', 'SALT'].forEach(function (k) { pr.deleteProperty(k); });
+    var r = altaCore_(d);
     pr.setProperty('ALTA_OK', fmt_(new Date()));
-    _M.logo = null;
-    var url = ScriptApp.getService().getUrl();
-    return { ok: true, codigo: codigo, marca: marca, url: url, urlPanel: url + '?p=admin', planilla: ss_().getUrl(), drive: raiz_().getUrl() };
+    return r;
   } finally { lock.releaseLock(); }
+}
+/** Valida los datos del alta (sirve para la copia propia y para la plataforma). */
+function validarAlta_(d) {
+  d = d || {};
+  var req = function (v, n) { v = String(v || '').trim(); if (!v) throw new Error('Falta: ' + n); return v; };
+  var o = { empresa: req(d.empresa, 'razón social'), marca: String(d.marca || d.empresa || '').trim() };
+  o.codigo = req(d.codigo, 'código de empresa').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  if (o.codigo.length < 3 || o.codigo.length > 20) throw new Error('El código debe tener entre 3 y 20 letras o números.');
+  var a = d.admin || {};
+  o.rutAdm = normRut_(req(a.rut, 'RUT del administrador')); o.pin = req(a.pin, 'PIN del administrador');
+  if (!/^\d{4,8}$/.test(o.pin)) throw new Error('El PIN debe tener de 4 a 8 números.');
+  if (/^(\d)\1+$/.test(o.pin) || '0123456789'.indexOf(o.pin) >= 0 || '9876543210'.indexOf(o.pin) >= 0) throw new Error('Elige un PIN menos obvio.');
+  o.rubro = RUBROS[String(d.rubro || '').toUpperCase()] ? String(d.rubro).toUpperCase() : 'OTRO';
+  var validos = MODULOS.map(function (m) { return m[0]; });
+  o.apagados = d.apagados ? [].concat(d.apagados).map(String).filter(function (t) { return validos.indexOf(t) >= 0; }) : (RUBROS[o.rubro].apagados || []).slice();
+  return o;
+}
+/** Crea planilla, carpetas, configuración, rubro, logo y administrador de la empresa actual. */
+function altaCore_(d) {
+  var v = validarAlta_(d), a = d.admin || {};
+  setup(v.marca);
+  _M = { ss: null, hojas: {}, filas: {} };
+  var col = colores_({ color_primario: d.color_primario, color_acento: d.color_acento });
+  var valores = { empresa: v.empresa, marca: v.marca, razon_social: v.empresa, rut_empresa: String(d.rut_empresa || '').trim(), codigo_empresa: v.codigo, rubro: v.rubro,
+    ciudad: String(d.ciudad || '').trim(), comunas: String(d.comunas || '').trim(), representante: String(d.representante || '').trim(),
+    color_primario: col.primario, color_acento: col.acento, modulos_apagados: JSON.stringify(v.apagados) };
+  if (d.correo) valores.correo_notificaciones = String(d.correo).trim();
+  if (d.url_app) valores.url_app = d.url_app;
+  if (d.url_panel) valores.url_panel = d.url_panel;
+  Object.keys(valores).forEach(function (k) { setCfg_(k, valores[k]); });
+  sembrarRubro_(v.rubro);
+  if (d.logo && d.logo.data) { try { guardarLogo_(d.logo); } catch (e) { console.warn('Logo: ' + e); } }
+
+  // Administrador: reemplaza al usuario inicial ADMIN / 1234
+  var adm = { rut: v.rutAdm, nombre: String(a.nombre || 'Administrador').trim(), cargo: String(a.cargo || 'Administrador').trim(), rol: 'admin', pin_hash: hash_(v.pin),
+    email: String(a.email || d.correo || '').trim(), telefono: String(a.telefono || '').trim(), activo: 'SI', creado: new Date() };
+  var ini = rows_('USUARIOS').filter(function (u) { return String(u.rut).toUpperCase() === 'ADMIN'; })[0];
+  if (ini) update_('USUARIOS', ini._row, adm); else append_('USUARIOS', adm);
+  _M.logo = null;
+  return { ok: true, codigo: v.codigo, marca: v.marca, rubro: v.rubro, url: urlSis_(''), urlPanel: urlSis_('p=admin'), planilla: ss_().getUrl(), drive: raiz_().getUrl() };
+}
+/** Guarda el logo como archivo logo.png / logo.jpg en la carpeta de la empresa. l = {data, mime} */
+function guardarLogo_(l) {
+  var b64 = String((l && l.data) || '').replace(/^data:[^,]*,/, '');
+  if (!b64) throw new Error('Elige una imagen.');
+  if (b64.length > 140000) throw new Error('El logo es muy pesado: usa una imagen de menos de 100 KB.');
+  var mime = /^image\/(png|jpeg)$/.test(l.mime) ? l.mime : 'image/png';
+  var root = raiz_(), it = root.searchFiles("title contains 'logo' and trashed = false");
+  while (it.hasNext()) { var f = it.next(); if (/^logo\.(png|jpe?g)$/i.test(f.getName())) f.setTrashed(true); }
+  root.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, 'logo.' + (mime === 'image/jpeg' ? 'jpg' : 'png')));
+  cache_().removeAll(['logo_b64', 'logo_mime']);
+  _M.logo = null;
 }
 /** Panel → Configuración: cambiar el logo (admin). d = {data, mime} */
 function apiSubirLogo(token, d) {
   auth_(token, ['admin']);
-  var b64 = String((d && d.data) || '').replace(/^data:[^,]*,/, '');
-  if (!b64) throw new Error('Elige una imagen.');
-  if (b64.length > 400000) throw new Error('El logo es muy pesado: usa una imagen de menos de 250 KB.');
-  props_().setProperty('LOGO_B64', b64); props_().setProperty('LOGO_MIME', /^image\/(png|jpeg)$/.test(d.mime) ? d.mime : 'image/png');
-  _M.logo = null;
+  guardarLogo_(d);
   return { logo: logoSrc_() };
 }
-/** Ejecuta esto una vez en el editor para aceptar los permisos (no instala nada). */
-function autorizar() {
-  DriveApp.getRootFolder(); SpreadsheetApp.getActive(); ScriptApp.getProjectTriggers(); MailApp.getRemainingDailyQuota(); UrlFetchApp;
-  Logger.log('Permisos listos. Ahora: Implementar > Nueva implementación > Aplicación web, y abre la URL para crear la empresa.');
-}
-
 /* ===================== INSTALACIÓN ===================== */
 
 function setup(nombre) {
-  var props = PropertiesService.getScriptProperties();
+  var props = props_();
   var base = 'PREVENCION_' + (String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '') || 'EMPRESA');
   props.setProperty('SCRIPT_ID', ScriptApp.getScriptId());
   if (!props.getProperty('SALT')) props.setProperty('SALT', Utilities.getUuid());
 
   var root;
   if (props.getProperty('ROOT_ID')) root = DriveApp.getFolderById(props.getProperty('ROOT_ID'));
-  else { root = DriveApp.createFolder(base); props.setProperty('ROOT_ID', root.getId()); }
+  else { root = carpetaPadre_().createFolder(base); props.setProperty('ROOT_ID', root.getId()); }
 
   var ss;
   if (props.getProperty('SS_ID')) ss = SpreadsheetApp.openById(props.getProperty('SS_ID'));
@@ -961,7 +969,7 @@ function setup(nombre) {
 
 /* ===================== UTILIDADES ===================== */
 
-function props_() { return PropertiesService.getScriptProperties(); }
+function props_() { return EMP ? propsEmp_() : PropertiesService.getScriptProperties(); }
 /* Memoria por ejecución: la planilla y cada hoja se leen una sola vez por llamada (mucho más rápido).
    Cualquier escritura (sh_, append_, update_) o un lock limpia lo leído para no usar datos viejos. */
 var _M = { ss: null, hojas: {}, filas: {} };
@@ -1075,7 +1083,7 @@ function lite_(r) {
 /* ===================== SESIÓN ===================== */
 
 function auth_(token, roles) {
-  var cache = CacheService.getScriptCache();
+  var cache = cache_();
   var s = token ? cache.get('tk_' + token) : null;
   if (!s) throw new Error('SESION_EXPIRADA');
   var u = JSON.parse(s);
@@ -1086,24 +1094,23 @@ function auth_(token, roles) {
 
 /** Versión del panel publicada (para que los paneles abiertos se recarguen solos al publicar una nueva). */
 function apiVersionPanel() {
-  var cache = CacheService.getScriptCache(), v = cache.get('ver_panel');
+  var cache = cache_(), v = cache.get('ver_panel');
   if (!v) {
     try { var m = HtmlService.createHtmlOutputFromFile('Admin').getContent().match(/VERSION_PANEL='(\d+)'/); v = m ? m[1] : ''; } catch (e) { v = ''; }
     if (v) cache.put('ver_panel', v, 300);
   }
-  return { version: v, url: ScriptApp.getService().getUrl() + '?p=admin' };
+  return { version: v, url: urlSis_('p=admin') };
 }
 function apiInfo() {
   var c = {};
   try { c = cfg_(); } catch (e) {}
-  var url = ScriptApp.getService().getUrl();
-  return { empresa: c.empresa || '', marca: c.marca || 'Terreno Seguro', codigo: c.codigo_empresa || '', url: url, urlAdmin: url + '?p=admin',
-           colores: colores_(c), logo: logoSrc_(), apagados: apagados_(c) };
+  return { empresa: c.empresa || '', marca: c.marca || 'Terreno Seguro', codigo: EMP ? EMP.codigo : (c.codigo_empresa || ''), url: urlSis_(''), urlAdmin: urlSis_('p=admin'),
+           colores: colores_(c), logo: logoSrc_(), apagados: apagados_(c), vocab: vocab_(c), rubro: rubroClave_(c) };
 }
 
 function apiLogin(rut, pin, panel) {
   rut = normRut_(rut);
-  var cache = CacheService.getScriptCache();
+  var cache = cache_();
   var intentos = Number(cache.get('in_' + rut) || 0);
   if (intentos >= 5) throw new Error('Demasiados intentos. Espera 2 minutos.');
   var u = rows_('USUARIOS').filter(function (x) { return normRut_(x.rut) === rut && String(x.activo).toUpperCase() === 'SI'; })[0];
@@ -1141,12 +1148,12 @@ function apiCodigoPanel(token) {
   var u = auth_(token);
   if (ROLES_PANEL.indexOf(u.rol) < 0) throw new Error('Tu usuario no tiene acceso al panel.');
   var code = Utilities.getUuid().replace(/-/g, '');
-  CacheService.getScriptCache().put('pc_' + code, JSON.stringify(u), 120);
+  cache_().put('pc_' + code, JSON.stringify(u), 120);
   return code;
 }
 /** El panel cambia el código por una sesión propia. */
 function apiCanjearCodigo(code) {
-  var cache = CacheService.getScriptCache(), s = code ? cache.get('pc_' + code) : null;
+  var cache = cache_(), s = code ? cache.get('pc_' + code) : null;
   if (!s) throw new Error('El enlace ya se usó o venció. Ingresa con tu RUT y PIN.');
   cache.remove('pc_' + code);
   var ses = JSON.parse(s);
@@ -1155,7 +1162,7 @@ function apiCanjearCodigo(code) {
   cache.put('tk_' + token, JSON.stringify(ses), 21600);
   return { token: token, user: ses, pinDebil: false, ocultas: ocultasDe_(ses.rol) };
 }
-function apiLogout(token) { if (token) CacheService.getScriptCache().remove('tk_' + token); return true; }
+function apiLogout(token) { if (token) cache_().remove('tk_' + token); return true; }
 
 /* ===================== APP TÉCNICO ===================== */
 
@@ -2125,6 +2132,7 @@ function apiIndicadores(token, mes) {
 var RESPALDOS_A_GUARDAR = 8;
 /** Copia la base de datos completa a la carpeta RESPALDOS (se activa los domingos con activarAvisos). */
 function respaldoSemanal() {
+  if (porEmpresas_('respaldoSemanal', arguments)) return;
   var root = DriveApp.getFolderById(props_().getProperty('ROOT_ID'));
   var fo = carpetaDe_('sistema', 'Respaldos');
   var copia = DriveApp.getFileById(ss_().getId()).makeCopy('Respaldo base de datos · ' + fmt_(new Date(), 'yyyy-MM-dd HH.mm'), fo);
@@ -3028,7 +3036,7 @@ function sugerenciasEntrega_() {
     if (f.id !== 'EPP' && f.id !== 'HERRAMIENTAS') return;
     itemsOf_(f).forEach(function (it) { if (it.tipo === 'sino') (f.id === 'EPP' ? epp : her).push(it.texto); });
   });
-  EPP_EXTRA.forEach(function (x) { if (epp.indexOf(x) < 0) epp.push(x); });
+  EPP_EXTRA.concat(rubroDef_().epp || []).forEach(function (x) { if (epp.indexOf(x) < 0) epp.push(x); });
   return { 'EPP': epp, 'Herramienta': her, 'Ropa de trabajo': ROPA_SUGERIDA };
 }
 
@@ -3311,6 +3319,7 @@ function tablaHtml_(titulo, filas, cols) {
 
 /** Correo diario (activado con activarAvisos). forzar = true para enviarlo aunque sea domingo o no haya novedades. */
 function avisoDiario(forzar) {
+  if (porEmpresas_('avisoDiario', arguments)) return;
   forzar = forzar === true;
   var c = cfg_();
   if (!c.correo_notificaciones) return 'Falta el correo de notificaciones.';
@@ -3359,6 +3368,7 @@ function avisoDiario(forzar) {
 
 /** Correo semanal (lunes 8:00) con lo de los últimos 7 días. */
 function resumenSemanal() {
+  if (porEmpresas_('resumenSemanal', arguments)) return;
   var c = cfg_();
   if (!c.correo_notificaciones) return 'Falta el correo de notificaciones.';
   var d0 = fmt_(new Date(Date.now() - 7 * 864e5), 'yyyy-MM-dd'), R = rows_('REGISTROS').filter(function (r) { return f10_(r.fecha) >= d0 && !esConfidencial_(r.form_id); });
@@ -4336,7 +4346,7 @@ function apiRedVivo(token) {
   auth_(token);
   var c = cfg_(), m = mwCfg_(), nota = '';
   var ult = c.mw_red_ts ? new Date(String(c.mw_red_ts).replace(' ', 'T')) : null;
-  var cache = CacheService.getScriptCache();
+  var cache = cache_();
   if (m.url && m.token && (!ult || Date.now() - ult.getTime() > 15 * 60000) && !cache.get('red_intento')) {
     cache.put('red_intento', '1', 600);   // si Mikrowisp no responde, no reintentar en cada apertura (10 min)
     try { importarRed_(mapNapsMw_(mwLista_(mwPost_(m.naps, {}))), 'Mikrowisp'); setCfg_('mw_red_ts', fmt_(new Date(), 'yyyy-MM-dd HH:mm')); fresco_(); nota = 'recién'; }
@@ -4613,6 +4623,7 @@ function probarMikrowisp() {
 
 /** Sincronización nocturna (3 am): clientes y cajas NAP desde Mikrowisp. Los equipos de almacén siguen por Excel (la API no los entrega). */
 function sincronizarMikrowisp() {
+  if (porEmpresas_('sincronizarMikrowisp', arguments)) return;
   var m = mwCfg_(), res = { clientes: null, naps: null, errores: [] };
   if (!m.url || !m.token) { res.errores.push('Falta la dirección de Mikrowisp o el token: escríbelos en Configuración y aprieta Guardar.'); Logger.log(res.errores[0]); return res; }
   try {
@@ -4677,6 +4688,7 @@ function tecnicoPorNombre_(nombre, tecs) {
   return c.length === 1 ? c[0] : null;
 }
 function sincronizarTicketsMw() {
+  if (porEmpresas_('sincronizarTicketsMw', arguments)) return;
   var m = mwCfg_(), res = { tickets: null, errores: [] };
   if (!m.url || !m.token) { res.errores.push('Tickets: falta configurar Mikrowisp.'); return res; }
   var L;
@@ -5013,6 +5025,7 @@ function cruceSmartOlt_() {
 }
 /** Trae todas las ONU de SmartOLT (nombre, OLT, puerto, estado y señal). */
 function sincronizarSmartOlt() {
+  if (porEmpresas_('sincronizarSmartOlt', arguments)) return;
   var res = { onus: 0, errores: [] };
   try {
     var L = mwLista_(soGet_('onu/get_all_onus_details'));
@@ -5156,6 +5169,11 @@ function doPost(e) {
   var out;
   try {
     var b = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (modoPlataforma_()) {
+      var cod = (e && e.parameter && e.parameter.e) || b.e;
+      if (cod) usarEmpresa_(cod);
+      else if (!b.rpc || PUBLICAS_PLATAFORMA.indexOf(b.rpc) < 0) throw new Error('Falta el código de empresa.');
+    }
     if (b.rpc) return rpc_(b);
     var clave = String(cfg_().puente_clave || '');
     if (!clave || b.clave !== clave) throw new Error('Clave del puente incorrecta.');
@@ -5231,6 +5249,7 @@ function apiEnCamino(token, id, geo) {
 
 function actualizarSistema() {
   setup();
+  try { if (cfg_().rubro) sembrarRubro_(cfg_().rubro); } catch (e) { Logger.log('Rubro: ' + e); }
   try { forms_(false).filter(function (f) { return FORMATOS_AUTO.indexOf(f.id) >= 0; }).forEach(function (f) { publicarFormato_(f, null, true); }); } catch (e) { console.warn('Formatos: ' + e); }
   try {   // OT: correo del cliente y opción "no firma digitalmente"
     var fot = rows_('FORMULARIOS').filter(function (x) { return x.id === 'OT'; })[0], dot = fot ? json_(fot.definicion, null) : null;
@@ -5395,21 +5414,27 @@ function apiConfig(token) {
   c.url_base_datos = ss_().getUrl();
   c.url_drive = DriveApp.getFolderById(props_().getProperty('ROOT_ID')).getUrl();
   c.pestanas = pestanasOcultas_();
+  c.rubros = listaRubros_(); c.vocab = vocab_(c);
   c.formsJornada = forms_(false).filter(function (f) { return f.ambito !== 'ticket'; }).map(function (f) { return { id: f.id, nombre: f.nombre }; });
   c.jornada_ids = jornadaObligatoria_();
-  try { c.url_script = ScriptApp.getService().getUrl(); } catch (e) {}
+  try { c.url_script = urlSis_(''); } catch (e) {}
   return c;
 }
 
 function apiGuardarConfig(token, obj) {
   auth_(token, ['admin']);
-  var permitidas = ['codigo_empresa', 'rubro', 'color_primario', 'color_acento', 'modulos_apagados', 'empresa', 'marca', 'correo_notificaciones', 'notificar', 'correo_urgencias', 'correo_denuncias', 'jornada_obligatoria', 'razon_social', 'rut_empresa', 'ciudad', 'representante', 'comunas', 'dias_prestamo', 'url_app', 'url_panel', 'mw_url', 'mw_token', 'radio_factible', 'mw_cerrar', 'mw_dias_tickets', 'ast_opcional', 'firma_remota', 'correo_ot', 'clima_lat', 'clima_lng', 'matriz_fecha', 'matriz_elaboro', 'matriz_aprobo', 'correo_tecnicos', 'so_url', 'so_token', 'ast_linea_vertical'];
+  var rubroAntes = String(cfg_().rubro || '').toUpperCase(), rubroNuevo = String((obj || {}).rubro || '').toUpperCase();
+  var cambioRubro = rubroNuevo && RUBROS[rubroNuevo] && rubroNuevo !== rubroAntes && !(rubroAntes === 'CONTRATISTA' && rubroNuevo === 'MINERIA');
+  if (cambioRubro) { obj.modulos_apagados = JSON.stringify(RUBROS[rubroNuevo].apagados || []); obj.vocabulario = ''; }
+  var permitidas = ['codigo_empresa', 'rubro', 'color_primario', 'color_acento', 'modulos_apagados', 'vocabulario', 'empresa', 'marca', 'correo_notificaciones', 'notificar', 'correo_urgencias', 'correo_denuncias', 'jornada_obligatoria', 'razon_social', 'rut_empresa', 'ciudad', 'representante', 'comunas', 'dias_prestamo', 'url_app', 'url_panel', 'mw_url', 'mw_token', 'radio_factible', 'mw_cerrar', 'mw_dias_tickets', 'ast_opcional', 'firma_remota', 'correo_ot', 'clima_lat', 'clima_lng', 'matriz_fecha', 'matriz_elaboro', 'matriz_aprobo', 'correo_tecnicos', 'so_url', 'so_token', 'ast_linea_vertical'];
   var hay = {};
   rows_('CONFIG').forEach(function (r) {
     hay[r.clave] = 1;
     if (permitidas.indexOf(r.clave) >= 0 && obj.hasOwnProperty(r.clave)) sh_('CONFIG').getRange(r._row, 2).setValue(limpia_(obj[r.clave]));
   });
   permitidas.forEach(function (k) { if (!hay[k] && obj.hasOwnProperty(k)) append_('CONFIG', { clave: k, valor: obj[k], descripcion: '' }); });
+  fresco_();
+  if (obj.rubro && RUBROS[String(obj.rubro).toUpperCase()]) { try { sembrarRubro_(obj.rubro); } catch (e) { console.warn('Rubro: ' + e); } }
   return apiConfig(token);
 }
 
@@ -5433,7 +5458,7 @@ function crearFirmaOT_(reg, ticket) {
     clave: clave, estado: 'Pendiente', vence: vence });
   return { url: urlFirma_(clave), telefono: tel, cliente: ticket.cliente, estado: 'Pendiente' };
 }
-function urlFirma_(clave) { return ScriptApp.getService().getUrl() + '?p=firmar&k=' + clave; }
+function urlFirma_(clave) { return urlSis_('p=firmar&k=' + clave); }
 function firmaPorClave_(k) {
   k = String(k || '').replace(/[^a-f0-9]/gi, '');
   if (k.length < 32) return null;
@@ -5656,7 +5681,7 @@ function climaHoy_() {
   var c = cfg_(), la = Number(c.clima_lat), ln = Number(c.clima_lng);
   if (!la || !ln) { var ce = centroClientes_(); if (ce) { la = ce[0]; ln = ce[1]; } }
   if (!la || !ln) return null;
-  var key = 'clima_' + hoy_() + '_' + la.toFixed(2) + '_' + ln.toFixed(2), cache = CacheService.getScriptCache(), ya = cache.get(key);
+  var key = 'clima_' + hoy_() + '_' + la.toFixed(2) + '_' + ln.toFixed(2), cache = cache_(), ya = cache.get(key);
   if (ya) return JSON.parse(ya);
   var u = 'https://api.open-meteo.com/v1/forecast?latitude=' + la + '&longitude=' + ln + '&daily=uv_index_max,temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code,wind_speed_10m_max' +
     '&current=temperature_2m,weather_code&timezone=America%2FSantiago&forecast_days=1';
@@ -5873,7 +5898,7 @@ function apiCargarMatrizBase(token) {
   if (rows_('MATRIZ').length) throw new Error('La matriz ya tiene filas. La plantilla solo se carga en una matriz vacía.');
   var lock = LockService.getScriptLock(); lock.waitLock(30000);
   try {
-    MATRIZ_BASE.forEach(function (m, i) {
+    (rubroDef_().matriz || MATRIZ_BASE).forEach(function (m, i) {
       append_('MATRIZ', { id: nuevoId_('MR'), orden: i + 1, proceso: m[0], tarea: m[1], puesto: m[2], rutinaria: m[3], peligro: m[4], riesgo: m[5], consecuencia: m[6],
         p: m[7], c: m[8], medidas: m[9], jerarquia: m[10], p_res: m[11], c_res: m[12], responsable: 'Supervisor / prevencionista', plazo: '', estado: 'Implementada',
         ast_tipos: m[13], actualizado: new Date(), actualizado_por: u.nombre });

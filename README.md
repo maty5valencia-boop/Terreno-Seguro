@@ -5,7 +5,9 @@ Sistema de prevención de riesgos y trabajo en terreno. Usa **una copia del back
 ```
 apps-script/        → backend (se pega en Google Apps Script)
   Code.gs           → servidor
-  Rubros.gs         → perfiles por rubro (formularios, cursos, matriz, nombres)
+  Rubros.gs         → perfiles por rubro (formularios, cursos, matriz, nombres, pestañas)
+  Plataforma.gs     → modo plataforma (muchas empresas en un solo proyecto) · obligatorio
+  Consola.html      → consola del dueño (solo en modo plataforma)
   Tecnico.html      → app de técnicos servida por el script
   Admin.html        → panel
   Alta.html         → asistente "Crear mi empresa"
@@ -17,7 +19,7 @@ empresas.json       → lista de empresas: código → URL de su sistema
 
 ## 1. Preparar la plantilla (una sola vez)
 
-1. Abre el proyecto de Apps Script que usarás como **Plantilla** y crea 5 archivos: `Code` y `Rubros` (secuencias de comandos), y `Tecnico`, `Admin` y `Alta` (HTML).
+1. Abre el proyecto de Apps Script que usarás como **Plantilla** y crea los archivos: `Code`, `Rubros` y `Plataforma` (secuencias de comandos), y `Tecnico`, `Admin`, `Alta` y `Consola` (HTML).
 2. Pega en cada uno el contenido de la carpeta `apps-script/`.
 3. **No implementes ni abras la URL de la plantilla.** Siempre se copia y se instala la copia.
 
@@ -76,3 +78,16 @@ La versión nueva reconoce las instalaciones antiguas y siguen funcionando con s
 - El sistema no usa los datos de otra empresa: si una copia trae datos de otra instalación, los ignora y pide su propia alta.
 - El alta se puede hacer una sola vez. El PIN se guarda cifrado y el usuario inicial ADMIN/1234 se reemplaza por el administrador real.
 - `empresas.json` es público: solo tiene los nombres y las URL. Para entrar siempre se necesita RUT y PIN.
+
+## Modo plataforma (alta automática)
+
+Es un solo proyecto para todas las empresas. Cada empresa tiene su planilla y su carpeta, y se crea sola desde la portada.
+1. Usa una cuenta Google de Terreno Seguro y un proyecto nuevo con todos los archivos de `apps-script/`.
+2. En `Plataforma.gs`, revisa `URL_WEB`. Después ejecuta `instalarPlataforma` y guarda el **PIN de la consola** que aparece en el registro de ejecución.
+3. Implementa como aplicación web (Ejecutar como: Yo · Cualquier usuario).
+4. Pon la URL `/exec` en `empresas.json` → `"_plataforma"`.
+5. Consola: `URL/exec?p=consola`. Ahí puedes:
+   - Crear las empresas modelo de cada rubro. Lo que edites en su panel (formularios, matriz, cursos, nombres) lo copian las empresas nuevas.
+   - Activar, suspender o extender la prueba de cada empresa.
+   - Entrar al panel de cualquier empresa como soporte.
+6. Cuando cambies el código, ejecuta `actualizarTodas` para aplicarlo a todas las empresas.

@@ -36,7 +36,7 @@ code{background:var(--fondo);padding:2px 6px;border-radius:6px;font-size:16px}
 </head>
 <body>
 <header>
-  <img id="prevLogo" alt="Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIyIiBmaWxsPSIjMjMzMDZiIi8+PHBhdGggZD0iTTUwIDE2IDc4IDI3djIwYzAgMTgtMTIgMzEtMjggMzctMTYtNi0yOC0xOS0yOC0zN1YyN3oiIGZpbGw9IiNGMjhDMjgiLz48cGF0aCBkPSJtMzcgNTAgOSA5IDE4LTE5IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
+  <img id="prevLogo" alt="Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxMzMwNkIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTE4MzUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMiIgZmlsbD0idXJsKCNnKSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMuNjAwMDAwMDAwMDAwMDAxNCAxNi45NDAwMDAwMDAwMDAwMDUpIHNjYWxlKDAuNTgpIj4KICA8cGF0aCBkPSJNMiA5NCBMNDAgNTIgTDU0IDY3IEw5NCAxOCBMMTM0IDY2IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik02NCA4MCBMOTQgNDggTDExNCA3MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik0xMTAgNDAgTDEzNCAzMSBMMTU4IDQwIFY2MCBDMTU4IDc3IDE0NyA4OCAxMzQgOTUgQzEyMSA4OCAxMTAgNzcgMTEwIDYwIFoiIGZpbGw9IiMwRjI3NTYiIHN0cm9rZT0iIzFFOUJGRiIgc3Ryb2tlLXdpZHRoPSI2LjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTIyIDYxIEwxMzEgNzAgTDE0NyA1MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUU5QkZGIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+PC9zdmc+">
   <h1 id="prevNombre">Crear mi empresa</h1>
   <p>Terreno Seguro · prevención de riesgos y trabajo en terreno</p>
 </header>
@@ -50,12 +50,7 @@ code{background:var(--fondo);padding:2px 6px;border-radius:6px;font-size:16px}
       <label>RUT de la empresa<input name="rut_empresa" placeholder="76.123.456-7"></label>
       <label>Nombre corto (el que ven los técnicos)<input name="marca" required placeholder="Constructora López"></label>
       <label>Código de empresa <small>lo escribe el técnico la primera vez que abre la app</small><input name="codigo" required pattern="[a-z0-9]{3,20}" placeholder="clopez"></label>
-      <label>Rubro<select name="rubro">
-        <option value="CONTRATISTA">Contratista / servicios en terreno</option>
-        <option value="ISP">Proveedor de internet (ISP)</option>
-        <option value="CONSTRUCCION">Construcción</option>
-        <option value="OTRO">Otro</option>
-      </select></label>
+      <label>Rubro <small>define los formularios, cursos, matriz de riesgos y nombres que trae el sistema</small><select name="rubro"><option value="OTRO">Cargando…</option></select></label>
       <label>Ciudad de los documentos<input name="ciudad" placeholder="Illapel"></label>
       <label>Comunas donde trabaja <small>separadas por coma</small><input name="comunas" placeholder="Illapel, Salamanca"></label>
       <label>Quién firma por la empresa<input name="representante" placeholder="Nombre del representante legal"></label>
@@ -67,7 +62,7 @@ code{background:var(--fondo);padding:2px 6px;border-radius:6px;font-size:16px}
     <h2>2. Logo y colores</h2>
     <p class="muted">Puedes cambiarlos después en el panel, en Configuración.</p>
     <div class="g">
-      <label class="full">Logo <small>PNG o JPG de menos de 250 KB, idealmente cuadrado</small><input type="file" id="logo" accept="image/png,image/jpeg"></label>
+      <label class="full">Logo <small>PNG o JPG, idealmente cuadrado (se achica solo)</small><input type="file" id="logo" accept="image/png,image/jpeg"></label>
       <label>Color principal<input type="color" name="color_primario" value="#23306b"></label>
       <label>Color de acento<input type="color" name="color_acento" value="#F28C28"></label>
     </div>
@@ -116,9 +111,16 @@ f.codigo.oninput = function () { f.codigo.dataset.tocado = 1; f.codigo.value = f
 $('#logo').onchange = function () {
   var file = this.files && this.files[0]; LOGO = null;
   if (!file) return;
-  if (file.size > 250000) { alert('El logo pesa más de 250 KB. Achícalo (por ejemplo en squoosh.app) y vuelve a elegirlo.'); this.value = ''; return; }
   var rd = new FileReader();
-  rd.onload = function () { LOGO = { data: rd.result, mime: file.type }; $('#prevLogo').src = rd.result; };
+  rd.onload = function () {
+    var img = new Image();
+    img.onload = function () {   // se achica en el teléfono: máximo 320 px
+      var k = Math.min(1, 320 / Math.max(img.width, img.height)), cv = document.createElement('canvas');
+      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      LOGO = { data: cv.toDataURL('image/png'), mime: 'image/png' }; $('#prevLogo').src = LOGO.data;
+    };
+    img.src = rd.result;
+  };
   rd.readAsDataURL(file);
 };
 
@@ -135,7 +137,7 @@ function pintarModulos() {
 }
 f.rubro.onchange = pintarModulos;
 
-google.script.run.withSuccessHandler(function (r) { INFO = r; pintarModulos(); })
+google.script.run.withSuccessHandler(function (r) { INFO = r; f.rubro.innerHTML = r.rubros.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + '</option>'; }).join(''); f.rubro.value = 'MINERIA'; pintarModulos(); })
   .withFailureHandler(function (e) { $('#mods').textContent = e.message; $('#btn').disabled = true; }).apiAltaInfo();
 
 f.onsubmit = function (ev) {

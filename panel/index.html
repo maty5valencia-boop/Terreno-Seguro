@@ -59,20 +59,28 @@
 
   fetch('../empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (lista) {
     var e = lista[cod];
-    if (!e || !e.url) return pedir('No encontramos el código "' + cod + '".');
-    localStorage.setItem('ts_panel', JSON.stringify({ codigo: cod, url: e.url, nombre: e.nombre || cod }));
-    document.title = 'Panel · ' + (e.nombre || cod);
-    if (e.logo) document.getElementById('lg').src = (/^https?:|^data:/.test(e.logo) ? '' : '../') + e.logo;
-    abrir(e.url);
+    if (e && e.url) return { url: e.url, nombre: e.nombre || cod, logo: e.logo || '' };
+    if (!lista._plataforma) return null;
+    return fetch(lista._plataforma + '?p=info&e=' + encodeURIComponent(cod)).then(function (r) { return r.json(); }).then(function (i) {
+      if (!i || i.error || i.ok === false) return null;
+      return { url: lista._plataforma, e: cod, nombre: i.marca || cod, logo: i.logo || '' };
+    });
+  }).then(function (x) {
+    if (!x) return pedir('No encontramos el código "' + cod + '".');
+    localStorage.setItem('ts_panel', JSON.stringify({ codigo: cod, url: x.url, e: x.e || '', nombre: x.nombre }));
+    document.title = 'Panel · ' + x.nombre;
+    if (x.logo) document.getElementById('lg').src = (/^https?:|^data:/.test(x.logo) ? '' : '../') + x.logo;
+    abrir(x.url, x.e);
   }).catch(function () {
-    if (guardado && guardado.codigo === cod) abrir(guardado.url); else pedir('No se pudo cargar la lista de empresas.');
+    if (guardado && guardado.codigo === cod) abrir(guardado.url, guardado.e); else pedir('No se pudo cargar la empresa.');
   });
 
-  function abrir(u) {
-    var f = document.querySelector('iframe'), src = u + '?p=admin';
+  function abrir(u, emp) {
+    var q = emp ? '?e=' + encodeURIComponent(emp) + '&' : '?';
+    var f = document.querySelector('iframe'), src = u + q + 'p=admin';
     f.onload = function () { if (!f.src) return; var c = document.getElementById('carga'); if (c) { c.style.opacity = 0; setTimeout(function () { c.remove(); }, 450); } };
     // Panel nuevo publicado: el panel avisa y aquí se recarga solo.
-    window.addEventListener('message', function (ev) { if (ev.data && ev.data.pvRecargar) f.src = u + '?p=admin&r=' + Date.now(); });
+    window.addEventListener('message', function (ev) { if (ev.data && ev.data.pvRecargar) f.src = u + q + 'p=admin&r=' + Date.now(); });
     var m = location.hash.match(/c=([A-Za-z0-9]+)/);
     if (m) { src += '&k=' + m[1]; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
     // Precarga oculta: Google a veces falla en la primera carga; esto hace el "recargar" solo.

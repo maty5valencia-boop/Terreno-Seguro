@@ -82,23 +82,37 @@
         <p class="ayuda">El código te lo da tu empresa (prevención o administración). Se pide una sola vez en este teléfono.</p>
       </form>
 
-      <form class="panel" id="pCr">
-        <p class="ayuda" style="margin:0 0 12px">Cuéntanos de tu empresa y te contactamos para dejar tu sistema listo con tu logo, tus formularios y tu matriz de riesgos.</p>
-        <label for="cr_emp">Empresa</label><input id="cr_emp" required placeholder="Razón social o nombre">
+      <form class="panel" id="pCr" autocomplete="off">
+        <p class="ayuda" style="margin:0 0 12px">Crea tu empresa y pruébala gratis 30 días. Queda lista con los formularios, cursos y matriz de riesgos de tu rubro.</p>
+        <label for="cr_emp">Razón social</label><input id="cr_emp" required placeholder="Constructora López SpA">
+        <div class="g2">
+          <div><label for="cr_marca">Nombre corto</label><input id="cr_marca" placeholder="Constructora López"></div>
+          <div><label for="cr_cod">Código de empresa</label><input id="cr_cod" required pattern="[a-z0-9]{3,20}" placeholder="clopez"></div>
+        </div>
         <div class="g2">
           <div><label for="cr_rub">Rubro</label><select id="cr_rub">
-            <option>Contratista minero</option><option>Construcción</option><option>Alimentos</option><option>Bodega, comercio o cosméticos</option>
-            <option>Proveedor de internet (ISP)</option><option>Otro</option></select></div>
+            <option value="MINERIA">Contratista minero</option><option value="CONSTRUCCION">Construcción</option><option value="ALIMENTOS">Alimentos</option>
+            <option value="BODEGA">Bodega, comercio o cosméticos</option><option value="ISP">Proveedor de internet (ISP)</option><option value="OTRO">Otro</option></select></div>
           <div><label for="cr_n">Trabajadores</label><select id="cr_n"><option>1 a 10</option><option>11 a 49</option><option>50 a 199</option><option>200 o más</option></select></div>
         </div>
-        <label for="cr_nom">Tu nombre</label><input id="cr_nom" required placeholder="Nombre y cargo">
+        <div class="g2">
+          <div><label for="cr_nom">Tu nombre</label><input id="cr_nom" required placeholder="Nombre y apellido"></div>
+          <div><label for="cr_rut">Tu RUT</label><input id="cr_rut" required placeholder="12.345.678-9"></div>
+        </div>
         <div class="g2">
           <div><label for="cr_tel">WhatsApp</label><input id="cr_tel" type="tel" required placeholder="+56 9 …"></div>
-          <div><label for="cr_mail">Correo</label><input id="cr_mail" type="email" placeholder="tu@empresa.cl"></div>
+          <div><label for="cr_mail">Correo</label><input id="cr_mail" type="email" required placeholder="tu@empresa.cl"></div>
         </div>
-        <button class="btn">Solicitar mi empresa</button>
+        <div class="g2" id="crPins">
+          <div><label for="cr_pin">PIN (4 a 8 números)</label><input id="cr_pin" type="password" inputmode="numeric" pattern="\d{4,8}" required></div>
+          <div><label for="cr_pin2">Repite el PIN</label><input id="cr_pin2" type="password" inputmode="numeric" pattern="\d{4,8}" required></div>
+        </div>
+        <input id="cr_web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button class="btn" id="bCr">Crear mi empresa</button>
         <div class="msg" id="msgCr"></div>
+        <p class="ayuda">Con tu RUT y PIN entras como administrador. Después puedes subir tu logo, cambiar colores y crear a tus trabajadores.</p>
       </form>
+      <div class="panel" id="pOk"></div>
     </div>
     <div id="actual"></div>
   </main>
@@ -106,16 +120,46 @@
 <div class="franja">Trabajemos juntos por un<b>entorno más seguro</b></div>
 
 <script>
-/* ===== Datos de contacto de Terreno Seguro (para "Crear empresa") ===== */
-var CONTACTO = { whatsapp: '', correo: '' };   // ej. whatsapp: '56912345678', correo: 'contacto@terrenoseguro.cl'
+/* ===== Contacto de Terreno Seguro (si la plataforma aún no está instalada, "Crear empresa" envía la solicitud por WhatsApp) ===== */
+var CONTACTO = { whatsapp: '56951954852', correo: '' };
 
 var $ = function (s) { return document.getElementById(s); };
 function tab(t) {
   $('tIn').classList.toggle('on', t === 'in'); $('tCr').classList.toggle('on', t === 'cr');
-  $('pIn').classList.toggle('on', t === 'in'); $('pCr').classList.toggle('on', t === 'cr');
+  $('pIn').classList.toggle('on', t === 'in'); $('pCr').classList.toggle('on', t === 'cr'); $('pOk').classList.remove('on');
 }
 var qs = new URLSearchParams(location.search);
 if (qs.has('crear') || location.hash === '#crear') tab('cr');
+
+var LISTA = null;
+function lista() { return LISTA ? Promise.resolve(LISTA) : fetch('empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (l) { return (LISTA = l); }); }
+/** Busca la empresa: primero las instalaciones propias de empresas.json, luego la plataforma. */
+function buscarEmpresa(cod) {
+  return lista().then(function (l) {
+    var e = l[cod];
+    if (e && e.url) {
+      var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
+      return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
+        if (i && !i.alta && !i.error) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; }
+        return datos;
+      }).catch(function () { return datos; });
+    }
+    if (!l._plataforma) throw new Error('No encontramos ese código. Revísalo con tu empresa.');
+    return fetch(l._plataforma + '?p=info&e=' + encodeURIComponent(cod)).then(function (r) { return r.json(); }).then(function (i) {
+      if (!i || i.error || i.ok === false) throw new Error((i && i.error) || 'No encontramos ese código. Revísalo con tu empresa.');
+      return { codigo: cod, url: l._plataforma, plataforma: true, marca: i.marca || cod, logo: i.logo || '', colores: i.colores || {}, vocab: i.vocab || {}, apagados: i.apagados || [] };
+    });
+  });
+}
+function guardarYEntrar(datos) {
+  if (actual && actual.codigo !== datos.codigo) {   // cambio de empresa: se borra la sesión y la cola de la anterior
+    if (!confirm('Vas a cambiar de ' + (actual.marca || actual.codigo) + ' a ' + datos.marca + '.\n\nSi te quedan registros sin enviar de la empresa anterior, se pierden. ¿Continuar?')) throw new Error('Cambio cancelado.');
+    Object.keys(localStorage).forEach(function (k) { if (/^(pv_|an_fondo)/.test(k)) localStorage.removeItem(k); });
+    try { indexedDB.deleteDatabase('pv_cola'); } catch (e) {}
+  }
+  localStorage.setItem('ts_empresa', JSON.stringify(datos));
+  location.replace('./');
+}
 
 /* ---- Ingresar con mi empresa ---- */
 var f = $('pIn'), inp = $('c'), msg = $('msg'), btn = $('b');
@@ -132,44 +176,58 @@ $('aPanel').onclick = function (ev) {
   if (!cod) { msg.textContent = 'Escribe primero el código de tu empresa.'; inp.focus(); return; }
   location.href = 'panel/?c=' + encodeURIComponent(cod);
 };
-
 f.onsubmit = function (ev) {
   if (ev && ev.preventDefault) ev.preventDefault();
   var cod = codigo();
   if (!cod) return;
   msg.textContent = ''; btn.disabled = true; btn.textContent = 'Buscando…';
-  fetch('empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (lista) {
-    var e = lista[cod];
-    if (!e || !e.url) throw new Error('No encontramos ese código. Revísalo con tu empresa.');
-    var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
-    // Datos actualizados desde el sistema de la empresa (logo y colores de Configuración)
-    return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
-      if (i && !i.alta) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; }
-      return datos;
-    }).catch(function () { return datos; });
-  }).then(function (datos) {
-    if (actual && actual.codigo !== datos.codigo) {   // cambio de empresa: se borra la sesión y la cola de la anterior
-      if (!confirm('Vas a cambiar de ' + (actual.marca || actual.codigo) + ' a ' + datos.marca + '.\n\nSi te quedan registros sin enviar de la empresa anterior, se pierden. ¿Continuar?')) throw new Error('Cambio cancelado.');
-      Object.keys(localStorage).forEach(function (k) { if (/^(pv_|an_fondo)/.test(k)) localStorage.removeItem(k); });
-      try { indexedDB.deleteDatabase('pv_cola'); } catch (e) {}
-    }
-    localStorage.setItem('ts_empresa', JSON.stringify(datos));
-    location.replace('./');
-  }).catch(function (e) {
+  buscarEmpresa(cod).then(guardarYEntrar).catch(function (e) {
     msg.textContent = navigator.onLine ? (e.message || 'No se pudo conectar.') : 'Sin señal: necesitas internet la primera vez.';
     btn.disabled = false; btn.textContent = 'Entrar a la app';
   });
 };
 
-/* ---- Crear empresa: envía la solicitud por WhatsApp (o correo) ---- */
+/* ---- Crear empresa ---- */
+var codTocado = false;
+function sugerir() {
+  if (codTocado) return;
+  var base = ($('cr_marca').value || $('cr_emp').value).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/\b(spa|ltda|limitada|eirl|s\.?a\.?|sociedad|empresa|servicios|y|de|la|el)\b/g, '').replace(/[^a-z0-9]/g, '');
+  $('cr_cod').value = base.slice(0, 20);
+}
+$('cr_emp').oninput = sugerir; $('cr_marca').oninput = sugerir;
+$('cr_cod').oninput = function () { codTocado = true; this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, ''); };
+
+function rpcPlataforma(url, fn, args) {
+  return fetch(url, { method: 'POST', body: JSON.stringify({ rpc: fn, args: args }), redirect: 'follow' }).then(function (r) { return r.json(); })
+    .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || 'Error del sistema'); return j.r; });
+}
 $('pCr').onsubmit = function (ev) {
   ev.preventDefault();
-  var t = 'Hola, quiero crear mi empresa en Terreno Seguro.\n' +
-    'Empresa: ' + $('cr_emp').value + '\nRubro: ' + $('cr_rub').value + '\nTrabajadores: ' + $('cr_n').value +
-    '\nContacto: ' + $('cr_nom').value + '\nWhatsApp: ' + $('cr_tel').value + ($('cr_mail').value ? '\nCorreo: ' + $('cr_mail').value : '');
-  if (CONTACTO.whatsapp) location.href = 'https://wa.me/' + CONTACTO.whatsapp + '?text=' + encodeURIComponent(t);
-  else if (CONTACTO.correo) location.href = 'mailto:' + CONTACTO.correo + '?subject=' + encodeURIComponent('Crear empresa en Terreno Seguro') + '&body=' + encodeURIComponent(t);
-  else $('msgCr').textContent = 'Falta configurar el contacto de Terreno Seguro.';
+  var m = $('msgCr'); m.textContent = '';
+  if ($('cr_pin').value !== $('cr_pin2').value) { m.textContent = 'Los dos PIN no coinciden.'; return; }
+  lista().then(function (l) {
+    if (!l._plataforma) {   // plataforma aún no instalada: solicitud por WhatsApp
+      var t = 'Hola, quiero crear mi empresa en Terreno Seguro.\nEmpresa: ' + $('cr_emp').value + '\nRubro: ' + $('cr_rub').selectedOptions[0].text + '\nTrabajadores: ' + $('cr_n').value +
+        '\nContacto: ' + $('cr_nom').value + '\nWhatsApp: ' + $('cr_tel').value + '\nCorreo: ' + $('cr_mail').value;
+      if (CONTACTO.whatsapp) location.href = 'https://wa.me/' + CONTACTO.whatsapp + '?text=' + encodeURIComponent(t);
+      else m.textContent = 'Falta configurar el contacto de Terreno Seguro.';
+      return;
+    }
+    var b = $('bCr'); b.disabled = true; b.textContent = 'Creando tu empresa… (puede tardar un minuto)';
+    var d = { empresa: $('cr_emp').value, marca: $('cr_marca').value || $('cr_emp').value, codigo: $('cr_cod').value, rubro: $('cr_rub').value,
+      trabajadores: $('cr_n').value, contacto: $('cr_nom').value, telefono: $('cr_tel').value, correo: $('cr_mail').value, web: $('cr_web').value,
+      admin: { rut: $('cr_rut').value, nombre: $('cr_nom').value, email: $('cr_mail').value, telefono: $('cr_tel').value, pin: $('cr_pin').value } };
+    return rpcPlataforma(l._plataforma, 'apiCrearEmpresa', [d]).then(function (r) {
+      $('pCr').classList.remove('on'); $('pOk').classList.add('on');
+      var e = function (x) { return String(x || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+      $('pOk').innerHTML = '<h3 style="margin:0 0 6px;color:var(--navy)">✅ ' + e(r.marca) + ' quedó creada</h3>' +
+        '<p class="ayuda" style="margin:0 0 12px">Código de tu empresa: <b style="font-size:18px;color:var(--navy)">' + e(r.codigo) + '</b> · prueba gratis hasta el ' + e(r.vence) + '.<br>Entras con tu RUT y el PIN que elegiste.</p>' +
+        '<a class="btn" href="panel/?c=' + e(r.codigo) + '">Entrar al panel de administración</a>' +
+        '<a class="sec" href="?c=' + e(r.codigo) + '">Abrir la app de técnicos en este equipo →</a>' +
+        '<p class="ayuda">Para tus trabajadores: comparte el enlace <b>' + e(location.origin + location.pathname.replace(/empresa\.html$/, '')) + '?c=' + e(r.codigo) + '</b></p>';
+    }).catch(function (err) { m.textContent = err.message || String(err); b.disabled = false; b.textContent = 'Crear mi empresa'; });
+  }).catch(function () { m.textContent = 'No se pudo conectar. Revisa tu internet.'; });
 };
 </script>
 </body>

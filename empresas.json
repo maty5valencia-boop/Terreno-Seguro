@@ -1,5 +1,6 @@
 {
-  "_ayuda": "Una línea por empresa. La clave es el código que escribe el técnico (solo minúsculas y números). url = URL de la implementación de Apps Script de esa empresa (termina en /exec). logo, color y acento son opcionales: si el sistema de la empresa responde, se usan los de su Configuración.",
+  "_ayuda": "Empresas: las de la plataforma no van aquí (se buscan solas en _plataforma). Aquí solo van las instalaciones propias (una copia por empresa): código → url /exec. _plataforma = URL /exec de la plataforma de Terreno Seguro.",
+  "_plataforma": "",
   "applynet": {
     "nombre": "APPLY-NET",
     "url": "https://script.google.com/macros/s/AKfycbxa8Q3m3mMfz7a2W1ZrcAss1dMlR0ekkygAhk0Bsc6snt1Qj5V7ei-t34nGEhhp-Y1Ldg/exec",
