@@ -1,234 +1,28 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Terreno Seguro · Prevención de riesgos en un solo sistema</title>
-<meta name="description" content="Sistema de prevención de riesgos y trabajo en terreno para pymes chilenas: AST, charlas, inspecciones, EPP, matriz de riesgos y Ley Karin desde el celular.">
-<meta name="theme-color" content="#0E1F45">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" href="favicon.png">
-<style>
-  :root{--navy:#0E1F45;--navy2:#13306B;--azul:#1E9BFF;--azul2:#7cc4ff;--texto:#18203a;--muted:#667089;--borde:#dde2ee}
-  *{box-sizing:border-box}
-  html{background:var(--navy)}
-  html,body{margin:0;min-height:100%;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff}
-  body{background:transparent;position:relative;z-index:0}
-  body::before{content:"";position:fixed;inset:0;z-index:-2;background:url(fondo.jpg) 35% top/cover no-repeat}
-  body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,22,52,.25) 0%,rgba(9,22,52,.7) 38%,rgba(9,22,52,.96) 70%)}
-  .wrap{min-height:100vh;display:flex;flex-direction:column;padding:calc(22px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom))}
-  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;gap:14px;max-width:560px;width:100%;margin:0 auto}
-  .marca{width:min(280px,72vw);filter:drop-shadow(0 4px 18px rgba(0,0,0,.5))}
-  .lema{letter-spacing:.32em;font-size:12px;font-weight:600;color:#dfe8ff;text-transform:uppercase;margin:-4px 0 4px}
-  .benef{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin:6px 0 10px}
-  .benef div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;line-height:1.2;color:#e8eeff}
-  .benef i{width:52px;height:52px;border-radius:50%;border:2px solid var(--azul);display:flex;align-items:center;justify-content:center;background:rgba(14,31,69,.55)}
-  .benef svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-  .card{width:100%;background:rgba(255,255,255,.97);color:var(--texto);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.4);overflow:hidden;text-align:left}
-  .tabs{display:grid;grid-template-columns:1fr 1fr;background:#eef2fa}
-  .tabs button{font:inherit;font-weight:700;font-size:15px;border:0;background:transparent;color:var(--muted);padding:14px 8px;cursor:pointer;border-bottom:3px solid transparent}
-  .tabs button.on{background:#fff;color:var(--navy);border-bottom-color:var(--azul)}
-  .panel{padding:18px 18px 20px;display:none}.panel.on{display:block}
-  label{display:block;font-weight:700;font-size:13.5px;margin:0 0 5px}
-  input,select{width:100%;font:inherit;padding:11px 12px;border:1px solid var(--borde);border-radius:10px;background:#fff;color:var(--texto);margin-bottom:10px}
-  #c{font-size:20px;letter-spacing:.04em;text-transform:lowercase}
-  input:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
-  .btn{display:block;width:100%;text-align:center;font:inherit;font-weight:800;border:0;border-radius:10px;padding:14px;background:var(--azul);color:#fff;cursor:pointer;text-decoration:none;letter-spacing:.02em}
-  .btn:disabled{opacity:.6}
-  .sec{display:block;text-align:center;margin-top:12px;font-size:14px;color:var(--navy2);font-weight:600}
-  .msg{min-height:20px;margin-top:10px;font-weight:600;color:#c62828;font-size:14px}
-  .ayuda{font-size:13px;color:var(--muted);margin:8px 0 0}
-  .ok{color:#1e8e4f}
-  #actual{font-size:14px;margin-top:4px;text-shadow:0 1px 4px rgba(0,0,0,.6)}#actual a{color:var(--azul2)}
-  .franja{display:none}
-  @media (max-width:420px){.benef div{font-size:11.5px}.benef i{width:46px;height:46px}}
-  @media (min-width:960px){
-    body::before{inset:0 auto 0 0;width:min(58vw,85vh);background-position:center;-webkit-mask-image:linear-gradient(90deg,#000 62%,transparent);mask-image:linear-gradient(90deg,#000 62%,transparent)}
-    body::after{background:linear-gradient(90deg,rgba(14,31,69,0) 0%,rgba(14,31,69,0) 35%,rgba(14,31,69,.6) 50%,rgba(14,31,69,0) 100%)}
-    .wrap{flex-direction:row;align-items:center;padding:40px 6vw}
-    .hero{margin:0 0 0 auto;justify-content:center;max-width:520px}
-    .franja{display:block;position:fixed;left:0;bottom:36px;padding:16px 34px 16px 30px;background:linear-gradient(90deg,#0b1a3d,#13306B);clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
-      font-weight:900;font-size:22px;line-height:1.15;letter-spacing:.02em;text-transform:uppercase;box-shadow:0 -2px 0 var(--azul) inset}
-    .franja b{display:block;color:var(--azul);font-size:28px}
+/* Terreno Seguro: guarda la app en el teléfono para que abra aunque no haya señal. */
+const VERSION = 'ts-202611080210';
+const BASE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'apple-touch-icon.png', 'icono-192.png', 'icono-512.png', 'empresa.html', 'logo.svg', 'fondo.jpg'];
+const CDN = /^(https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|unpkg\.com)\/)/;
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(VERSION).then(c => Promise.all(BASE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  const req = e.request, url = new URL(req.url);
+  if (req.method !== 'GET') return;                                   // envíos al sistema: nunca se tocan
+  if (url.origin === location.origin) {
+    if (url.pathname.includes('/panel/')) return;                     // el panel no se guarda
+    if (url.pathname.endsWith('empresas.json')) return;               // la lista de empresas siempre se pide a internet
+    // primero internet (para recibir actualizaciones); sin señal, lo guardado
+    e.respondWith(fetch(req).then(r => {
+      if (r.ok) { const cp = r.clone(); caches.open(VERSION).then(c => c.put(req.mode === 'navigate' ? 'index.html' : req, cp)); }
+      return r;
+    }).catch(() => caches.match(req.mode === 'navigate' ? 'index.html' : req, { ignoreSearch: true }).then(r => r || caches.match('index.html'))));
+    return;
   }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <main class="hero">
-    <img class="marca" src="logo.svg" alt="Terreno Seguro">
-    <div class="lema">Todo en un solo sistema</div>
-    <div class="benef">
-      <div><i><svg viewBox="0 0 24 24"><path d="M4 15a8 8 0 0 1 16 0"/><path d="M10 7.5V5h4v2.5"/><path d="M2.5 15h19v2.5h-19z"/></svg></i>Gestiona tus riesgos</div>
-      <div><i><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10l1.5 1.5 3-3M8.5 16l1.5 1.5 3-3"/></svg></i>Realiza inspecciones</div>
-      <div><i><svg viewBox="0 0 24 24"><path d="M4 20V14M9 20v-8M14 20v-5M19 20V9"/><path d="M4 10l5-4 4 3 6-5M16 4h3v3"/></svg></i>Mide y analiza</div>
-      <div><i><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><circle cx="5.5" cy="10" r="2.2"/><circle cx="18.5" cy="10" r="2.2"/><path d="M6.5 20a5.5 5.5 0 0 1 11 0M1.5 19a4 4 0 0 1 5-3.8M22.5 19a4 4 0 0 0-5-3.8"/></svg></i>Cuida a tu equipo</div>
-    </div>
-
-    <div class="card">
-      <div class="tabs">
-        <button type="button" id="tIn" class="on" onclick="tab('in')">Ingresar con mi empresa</button>
-        <button type="button" id="tCr" onclick="tab('cr')">Crear empresa</button>
-      </div>
-
-      <form class="panel on" id="pIn">
-        <label for="c">Código de tu empresa</label>
-        <input id="c" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ej. clopez" required>
-        <button class="btn" id="b">Entrar a la app</button>
-        <a class="sec" href="#" id="aPanel">Soy administrador: entrar al panel →</a>
-        <div class="msg" id="msg"></div>
-        <p class="ayuda">El código te lo da tu empresa (prevención o administración). Se pide una sola vez en este teléfono.</p>
-      </form>
-
-      <form class="panel" id="pCr" autocomplete="off">
-        <p class="ayuda" style="margin:0 0 12px">Crea tu empresa y pruébala gratis 30 días. Queda lista con los formularios, cursos y matriz de riesgos de tu rubro.</p>
-        <label for="cr_emp">Razón social</label><input id="cr_emp" required placeholder="Constructora López SpA">
-        <div class="g2">
-          <div><label for="cr_marca">Nombre corto</label><input id="cr_marca" placeholder="Constructora López"></div>
-          <div><label for="cr_cod">Código de empresa</label><input id="cr_cod" required pattern="[a-z0-9]{3,20}" placeholder="clopez"></div>
-        </div>
-        <div class="g2">
-          <div><label for="cr_rub">Rubro</label><select id="cr_rub">
-            <option value="MINERIA">Contratista minero</option><option value="CONSTRUCCION">Construcción</option><option value="ALIMENTOS">Alimentos</option>
-            <option value="BODEGA">Bodega, comercio o cosméticos</option><option value="ISP">Proveedor de internet (ISP)</option><option value="OTRO">Otro</option></select></div>
-          <div><label for="cr_n">Trabajadores</label><select id="cr_n"><option>1 a 10</option><option>11 a 49</option><option>50 a 199</option><option>200 o más</option></select></div>
-        </div>
-        <div class="g2">
-          <div><label for="cr_nom">Tu nombre</label><input id="cr_nom" required placeholder="Nombre y apellido"></div>
-          <div><label for="cr_rut">Tu RUT</label><input id="cr_rut" required placeholder="12.345.678-9"></div>
-        </div>
-        <div class="g2">
-          <div><label for="cr_tel">WhatsApp</label><input id="cr_tel" type="tel" required placeholder="+56 9 …"></div>
-          <div><label for="cr_mail">Correo</label><input id="cr_mail" type="email" required placeholder="tu@empresa.cl"></div>
-        </div>
-        <div class="g2" id="crPins">
-          <div><label for="cr_pin">PIN (4 a 8 números)</label><input id="cr_pin" type="password" inputmode="numeric" pattern="\d{4,8}" required></div>
-          <div><label for="cr_pin2">Repite el PIN</label><input id="cr_pin2" type="password" inputmode="numeric" pattern="\d{4,8}" required></div>
-        </div>
-        <input id="cr_web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-        <button class="btn" id="bCr">Crear mi empresa</button>
-        <div class="msg" id="msgCr"></div>
-        <p class="ayuda">Con tu RUT y PIN entras como administrador. Después puedes subir tu logo, cambiar colores y crear a tus trabajadores.</p>
-      </form>
-      <div class="panel" id="pOk"></div>
-    </div>
-    <div id="actual"></div>
-  </main>
-</div>
-<div class="franja">Trabajemos juntos por un<b>entorno más seguro</b></div>
-
-<script>
-/* ===== Contacto de Terreno Seguro (si la plataforma aún no está instalada, "Crear empresa" envía la solicitud por WhatsApp) ===== */
-var CONTACTO = { whatsapp: '56951954852', correo: '' };
-
-var $ = function (s) { return document.getElementById(s); };
-function tab(t) {
-  $('tIn').classList.toggle('on', t === 'in'); $('tCr').classList.toggle('on', t === 'cr');
-  $('pIn').classList.toggle('on', t === 'in'); $('pCr').classList.toggle('on', t === 'cr'); $('pOk').classList.remove('on');
-}
-var qs = new URLSearchParams(location.search);
-if (qs.has('crear') || location.hash === '#crear') tab('cr');
-
-var LISTA = null;
-function lista() { return LISTA ? Promise.resolve(LISTA) : fetch('empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (l) { return (LISTA = l); }); }
-/** Busca la empresa: primero las instalaciones propias de empresas.json, luego la plataforma. */
-function buscarEmpresa(cod) {
-  return lista().then(function (l) {
-    var e = l[cod];
-    if (e && e.url) {
-      var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
-      return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
-        if (i && !i.alta && !i.error) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; datos.fondo = i.fondo || ''; }
-        return datos;
-      }).catch(function () { return datos; });
-    }
-    if (!l._plataforma) throw new Error('No encontramos ese código. Revísalo con tu empresa.');
-    return fetch(l._plataforma + '?p=info&e=' + encodeURIComponent(cod)).then(function (r) { return r.json(); }).then(function (i) {
-      if (!i || i.error || i.ok === false) throw new Error((i && i.error) || 'No encontramos ese código. Revísalo con tu empresa.');
-      return { codigo: cod, url: l._plataforma, plataforma: true, marca: i.marca || cod, logo: i.logo || '', colores: i.colores || {}, vocab: i.vocab || {}, apagados: i.apagados || [], fondo: i.fondo || '' };
-    });
-  });
-}
-function guardarYEntrar(datos) {
-  if (actual && actual.codigo !== datos.codigo) {   // cambio de empresa: se borra la sesión y la cola de la anterior
-    if (!confirm('Vas a cambiar de ' + (actual.marca || actual.codigo) + ' a ' + datos.marca + '.\n\nSi te quedan registros sin enviar de la empresa anterior, se pierden. ¿Continuar?')) throw new Error('Cambio cancelado.');
-    Object.keys(localStorage).forEach(function (k) { if (/^(pv_|an_fondo)/.test(k)) localStorage.removeItem(k); });
-    try { indexedDB.deleteDatabase('pv_cola'); } catch (e) {}
+  if (CDN.test(req.url)) {                                            // mapa y lector de códigos: se guardan al usarlos
+    e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => { const cp = r.clone(); caches.open(VERSION).then(c => c.put(req, cp)); return r; })));
   }
-  localStorage.setItem('ts_empresa', JSON.stringify(datos));
-  location.replace('./');
-}
-
-/* ---- Ingresar con mi empresa ---- */
-var f = $('pIn'), inp = $('c'), msg = $('msg'), btn = $('b');
-var actual = null;
-try { actual = JSON.parse(localStorage.getItem('ts_empresa') || 'null'); } catch (e) {}
-if (actual && actual.marca) $('actual').innerHTML = 'Empresa en este equipo: <b>' + actual.marca.replace(/</g, '&lt;') + '</b> · <a href="./">abrir la app</a>';
-var q = qs.get('c');
-if (q) { inp.value = q; setTimeout(function () { f.requestSubmit ? f.requestSubmit() : f.onsubmit(new Event('submit')); }, 50); }
-
-function codigo() { return inp.value.trim().toLowerCase().replace(/[^a-z0-9]/g, ''); }
-$('aPanel').onclick = function (ev) {
-  ev.preventDefault();
-  var cod = codigo();
-  if (!cod) { msg.textContent = 'Escribe primero el código de tu empresa.'; inp.focus(); return; }
-  location.href = 'panel/?c=' + encodeURIComponent(cod);
-};
-f.onsubmit = function (ev) {
-  if (ev && ev.preventDefault) ev.preventDefault();
-  var cod = codigo();
-  if (!cod) return;
-  msg.textContent = ''; btn.disabled = true; btn.textContent = 'Buscando…';
-  buscarEmpresa(cod).then(guardarYEntrar).catch(function (e) {
-    msg.textContent = navigator.onLine ? (e.message || 'No se pudo conectar.') : 'Sin señal: necesitas internet la primera vez.';
-    btn.disabled = false; btn.textContent = 'Entrar a la app';
-  });
-};
-
-/* ---- Crear empresa ---- */
-var codTocado = false;
-function sugerir() {
-  if (codTocado) return;
-  var base = ($('cr_marca').value || $('cr_emp').value).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/\b(spa|ltda|limitada|eirl|s\.?a\.?|sociedad|empresa|servicios|y|de|la|el)\b/g, '').replace(/[^a-z0-9]/g, '');
-  $('cr_cod').value = base.slice(0, 20);
-}
-$('cr_emp').oninput = sugerir; $('cr_marca').oninput = sugerir;
-$('cr_cod').oninput = function () { codTocado = true; this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, ''); };
-
-function rpcPlataforma(url, fn, args) {
-  return fetch(url, { method: 'POST', body: JSON.stringify({ rpc: fn, args: args }), redirect: 'follow' }).then(function (r) { return r.json(); })
-    .then(function (j) { if (!j || !j.ok) throw new Error((j && j.error) || 'Error del sistema'); return j.r; });
-}
-$('pCr').onsubmit = function (ev) {
-  ev.preventDefault();
-  var m = $('msgCr'); m.textContent = '';
-  if ($('cr_pin').value !== $('cr_pin2').value) { m.textContent = 'Los dos PIN no coinciden.'; return; }
-  lista().then(function (l) {
-    if (!l._plataforma) {   // plataforma aún no instalada: solicitud por WhatsApp
-      var t = 'Hola, quiero crear mi empresa en Terreno Seguro.\nEmpresa: ' + $('cr_emp').value + '\nRubro: ' + $('cr_rub').selectedOptions[0].text + '\nTrabajadores: ' + $('cr_n').value +
-        '\nContacto: ' + $('cr_nom').value + '\nWhatsApp: ' + $('cr_tel').value + '\nCorreo: ' + $('cr_mail').value;
-      if (CONTACTO.whatsapp) location.href = 'https://wa.me/' + CONTACTO.whatsapp + '?text=' + encodeURIComponent(t);
-      else m.textContent = 'Falta configurar el contacto de Terreno Seguro.';
-      return;
-    }
-    var b = $('bCr'); b.disabled = true; b.textContent = 'Creando tu empresa… (puede tardar un minuto)';
-    var d = { empresa: $('cr_emp').value, marca: $('cr_marca').value || $('cr_emp').value, codigo: $('cr_cod').value, rubro: $('cr_rub').value,
-      trabajadores: $('cr_n').value, contacto: $('cr_nom').value, telefono: $('cr_tel').value, correo: $('cr_mail').value, web: $('cr_web').value,
-      admin: { rut: $('cr_rut').value, nombre: $('cr_nom').value, email: $('cr_mail').value, telefono: $('cr_tel').value, pin: $('cr_pin').value } };
-    return rpcPlataforma(l._plataforma, 'apiCrearEmpresa', [d]).then(function (r) {
-      $('pCr').classList.remove('on'); $('pOk').classList.add('on');
-      var e = function (x) { return String(x || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-      $('pOk').innerHTML = '<h3 style="margin:0 0 6px;color:var(--navy)">✅ ' + e(r.marca) + ' quedó creada</h3>' +
-        '<p class="ayuda" style="margin:0 0 12px">Código de tu empresa: <b style="font-size:18px;color:var(--navy)">' + e(r.codigo) + '</b> · prueba gratis hasta el ' + e(r.vence) + '.<br>Entras con tu RUT y el PIN que elegiste.</p>' +
-        '<a class="btn" href="panel/?c=' + e(r.codigo) + '">Entrar al panel de administración</a>' +
-        '<a class="sec" href="?c=' + e(r.codigo) + '">Abrir la app de técnicos en este equipo →</a>' +
-        '<p class="ayuda">Para tus trabajadores: comparte el enlace <b>' + e(location.origin + location.pathname.replace(/empresa\.html$/, '')) + '?c=' + e(r.codigo) + '</b></p>';
-    }).catch(function (err) { m.textContent = err.message || String(err); b.disabled = false; b.textContent = 'Crear mi empresa'; });
-  }).catch(function () { m.textContent = 'No se pudo conectar. Revisa tu internet.'; });
-};
-</script>
-</body>
-</html>
+});
