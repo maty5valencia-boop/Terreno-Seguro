@@ -59,7 +59,7 @@ f.onsubmit = function (ev) {
     var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
     // Datos actualizados desde el sistema de la empresa (logo y colores de Configuración)
     return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
-      if (i && !i.alta) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; }
+      if (i && !i.alta) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; datos.vocab = i.vocab || {}; datos.apagados = i.apagados || []; }
       return datos;
     }).catch(function () { return datos; });
   }).then(function (datos) {
