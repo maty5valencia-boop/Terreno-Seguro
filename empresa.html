@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Terreno Seguro · Elegir empresa</title>
+<meta name="theme-color" content="#121A3D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#121A3D;color:#fff;font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{max-width:420px;margin:0 auto;padding:calc(48px + env(safe-area-inset-top)) 20px 30px;text-align:center}
+  img{width:96px;height:96px;border-radius:22px}
+  h1{margin:16px 0 4px;font-size:24px}
+  p{color:#C9CFE6;margin:0 0 22px}
+  form{background:#fff;color:#18203a;border-radius:16px;padding:20px;text-align:left}
+  label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+  input{width:100%;font:inherit;font-size:20px;letter-spacing:.04em;padding:12px;border:1px solid #dde2ee;border-radius:10px;text-transform:lowercase}
+  input:focus{outline:2px solid #F28C28;border-color:#F28C28}
+  button{width:100%;margin-top:14px;font:inherit;font-weight:700;border:0;border-radius:10px;padding:14px;background:#F28C28;color:#fff}
+  button:disabled{opacity:.6}
+  #msg{min-height:22px;margin-top:12px;font-weight:600;color:#c62828}
+  .ayuda{font-size:13px;color:#667089;margin-top:10px}
+  #actual{margin-top:18px;font-size:14px}#actual a{color:#F28C28}
+</style>
+</head>
+<body>
+<main>
+  <img src="icono-192.png" alt="">
+  <h1>Terreno Seguro</h1>
+  <p>Prevención de riesgos y trabajo en terreno</p>
+  <form id="f">
+    <label for="c">Código de tu empresa</label>
+    <input id="c" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ej. clopez" required>
+    <button id="b">Continuar</button>
+    <div id="msg"></div>
+    <div class="ayuda">El código te lo da tu empresa (prevención o administración). Se pide una sola vez en este teléfono.</div>
+  </form>
+  <div id="actual"></div>
+</main>
+<script>
+var f = document.getElementById('f'), inp = document.getElementById('c'), msg = document.getElementById('msg'), btn = document.getElementById('b');
+var actual = null;
+try { actual = JSON.parse(localStorage.getItem('ts_empresa') || 'null'); } catch (e) {}
+if (actual && actual.marca) document.getElementById('actual').innerHTML = 'Empresa actual: <b>' + actual.marca.replace(/</g, '&lt;') + '</b> · <a href="./">volver</a>';
+var q = new URLSearchParams(location.search).get('c');
+if (q) { inp.value = q; setTimeout(function () { f.requestSubmit ? f.requestSubmit() : f.onsubmit(new Event('submit')); }, 50); }
+
+f.onsubmit = function (ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  var cod = inp.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!cod) return;
+  msg.textContent = ''; btn.disabled = true; btn.textContent = 'Buscando…';
+  fetch('empresas.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (lista) {
+    var e = lista[cod];
+    if (!e || !e.url) throw new Error('No encontramos ese código. Revísalo con tu empresa.');
+    var datos = { codigo: cod, url: e.url, marca: e.nombre || cod, logo: e.logo || '', colores: { primario: e.color || '', acento: e.acento || '' } };
+    // Datos actualizados desde el sistema de la empresa (logo y colores de Configuración)
+    return fetch(e.url + '?p=info').then(function (r) { return r.json(); }).then(function (i) {
+      if (i && !i.alta) { datos.marca = i.marca || datos.marca; datos.logo = i.logo || datos.logo; datos.colores = i.colores || datos.colores; }
+      return datos;
+    }).catch(function () { return datos; });
+  }).then(function (datos) {
+    if (actual && actual.codigo !== datos.codigo) {   // cambio de empresa: se borra la sesión y la cola de la anterior
+      if (!confirm('Vas a cambiar de ' + (actual.marca || actual.codigo) + ' a ' + datos.marca + '.\n\nSi te quedan registros sin enviar de la empresa anterior, se pierden. ¿Continuar?')) throw new Error('Cambio cancelado.');
+      Object.keys(localStorage).forEach(function (k) { if (/^pv_/.test(k)) localStorage.removeItem(k); });
+      try { indexedDB.deleteDatabase('pv_cola'); } catch (e) {}
+    }
+    localStorage.setItem('ts_empresa', JSON.stringify(datos));
+    location.replace('./');
+  }).catch(function (e) {
+    msg.textContent = navigator.onLine ? (e.message || 'No se pudo conectar.') : 'Sin señal: necesitas internet la primera vez.';
+    btn.disabled = false; btn.textContent = 'Continuar';
+  });
+};
+</script>
+</body>
+</html>
