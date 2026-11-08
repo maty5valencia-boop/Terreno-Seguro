@@ -69,7 +69,7 @@ f.onsubmit = function (ev) {
   }).then(function (datos) {
     if (actual && actual.codigo !== datos.codigo) {   // cambio de empresa: se borra la sesión y la cola de la anterior
       if (!confirm('Vas a cambiar de ' + (actual.marca || actual.codigo) + ' a ' + datos.marca + '.\n\nSi te quedan registros sin enviar de la empresa anterior, se pierden. ¿Continuar?')) throw new Error('Cambio cancelado.');
-      Object.keys(localStorage).forEach(function (k) { if (/^pv_/.test(k)) localStorage.removeItem(k); });
+      Object.keys(localStorage).forEach(function (k) { if (/^(pv_|an_fondo)/.test(k)) localStorage.removeItem(k); });
       try { indexedDB.deleteDatabase('pv_cola'); } catch (e) {}
     }
     localStorage.setItem('ts_empresa', JSON.stringify(datos));
