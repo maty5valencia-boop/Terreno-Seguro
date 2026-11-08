@@ -5,6 +5,7 @@ Sistema de prevención de riesgos y trabajo en terreno. Usa **una copia del back
 ```
 apps-script/        → backend (se pega en Google Apps Script)
   Code.gs           → servidor
+  Rubros.gs         → perfiles por rubro (formularios, cursos, matriz, nombres)
   Tecnico.html      → app de técnicos servida por el script
   Admin.html        → panel
   Alta.html         → asistente "Crear mi empresa"
@@ -16,7 +17,7 @@ empresas.json       → lista de empresas: código → URL de su sistema
 
 ## 1. Preparar la plantilla (una sola vez)
 
-1. Abre el proyecto de Apps Script que usarás como **Plantilla** y crea 4 archivos: `Code` (secuencia de comandos) y `Tecnico`, `Admin` y `Alta` (HTML).
+1. Abre el proyecto de Apps Script que usarás como **Plantilla** y crea 5 archivos: `Code` y `Rubros` (secuencias de comandos), y `Tecnico`, `Admin` y `Alta` (HTML).
 2. Pega en cada uno el contenido de la carpeta `apps-script/`.
 3. **No implementes ni abras la URL de la plantilla.** Siempre se copia y se instala la copia.
 
@@ -48,9 +49,21 @@ Módulos apagados por defecto según el rubro:
 - **Contratista y Otro:** Equipos con serie y Fallas de red.
 - **Construcción:** Equipos con serie, Fallas de red y Clientes.
 
+## Rubros
+
+`Rubros.gs` define qué trae cada empresa según su rubro: ISP, Minería (contratistas), Construcción, Alimentos (seguridad + inocuidad), Bodega/comercio/cosméticos y Otro.
+- Formularios propios del rubro, por ejemplo: permiso de alto riesgo, andamios, temperaturas y limpieza (BPM), grúa horquilla, inflamables (DS 43).
+- Cursos y EPP sugeridos.
+- Matriz de riesgos base (en el panel: Matriz → cargar plantilla base, con la matriz vacía).
+- Nombres de las pestañas: por ejemplo, "Órdenes de trabajo" y "Mandantes" en minería.
+- Pestañas apagadas por defecto.
+
+Si se cambia el rubro en Configuración, se agregan sus formularios y cursos y no se borra nada. Para crear un rubro nuevo, copia uno en `Rubros.gs`.
+Las referencias normativas son orientativas: la prevencionista de cada empresa tiene que revisarlas.
+
 ## 4. Actualizar el sistema a todas las empresas
 
-Por ahora hay que pegar el `Code.gs` y los HTML nuevos en cada copia y luego ir a **Implementar → Gestionar implementaciones → Editar → Nueva versión**. La URL no cambia. Cuando haya más de 3 o 4 empresas, conviene usar `clasp` para subirlo a todas con un comando.
+Por ahora hay que pegar el `Code.gs`, el `Rubros.gs` y los HTML nuevos en cada copia, ejecutar `actualizarSistema` una vez y luego ir a **Implementar → Gestionar implementaciones → Editar → Nueva versión**. La URL no cambia. Cuando haya más de 3 o 4 empresas, conviene usar `clasp` para subirlo a todas con un comando.
 
 ## 5. APPLY-NET y Pulso (instalaciones anteriores)
 

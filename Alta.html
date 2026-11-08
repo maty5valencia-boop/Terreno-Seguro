@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crear mi empresa · Terreno Seguro</title>
+<style>
+:root{--p:#23306b;--a:#F28C28;--fondo:#f2f4f9;--card:#fff;--texto:#18203a;--muted:#667089;--borde:#dde2ee;--mal:#c62828;--ok:#1e8e4f}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--fondo);color:var(--texto)}
+header{background:var(--p);color:#fff;padding:22px 16px 56px;text-align:center;transition:background .2s}
+header img{width:72px;height:72px;border-radius:18px;background:#fff;object-fit:contain;box-shadow:0 0 0 3px var(--a)}
+header h1{margin:10px 0 2px;font-size:22px}header p{margin:0;opacity:.85}
+main{max-width:720px;margin:-40px auto 40px;padding:0 12px}
+.card{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:18px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:17px;border-left:4px solid var(--a);padding-left:8px}
+.card>p.muted{margin:0 0 12px}
+.muted{color:var(--muted);font-size:13px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}.full{grid-column:1/-1}
+@media(max-width:560px){.g{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}
+label small{font-weight:400;color:var(--muted)}
+input,select{font:inherit;padding:9px 10px;border:1px solid var(--borde);border-radius:9px;background:#fff;color:inherit}
+input:focus,select:focus{outline:2px solid var(--a);border-color:var(--a)}
+input[type=color]{padding:2px;height:40px}
+.mods{display:flex;flex-wrap:wrap;gap:8px}
+.mods label{flex-direction:row;align-items:center;gap:6px;font-weight:400;border:1px solid var(--borde);border-radius:20px;padding:5px 12px;cursor:pointer}
+.grupo{font-weight:700;font-size:12px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:13px 18px;background:var(--a);color:#fff;cursor:pointer;width:100%}
+button:disabled{opacity:.6;cursor:wait}
+#err{color:var(--mal);font-weight:600;margin:10px 0 0}
+.fin{text-align:center}.fin a{display:block;margin:8px 0;padding:12px;border-radius:10px;background:var(--p);color:#fff;text-decoration:none;font-weight:700}
+.fin a.sec{background:#fff;color:var(--p);border:1px solid var(--borde)}
+code{background:var(--fondo);padding:2px 6px;border-radius:6px;font-size:16px}
+</style>
+</head>
+<body>
+<header>
+  <img id="prevLogo" alt="Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMxMzMwNkIiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTE4MzUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMiIgZmlsbD0idXJsKCNnKSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMuNjAwMDAwMDAwMDAwMDAxNCAxNi45NDAwMDAwMDAwMDAwMDUpIHNjYWxlKDAuNTgpIj4KICA8cGF0aCBkPSJNMiA5NCBMNDAgNTIgTDU0IDY3IEw5NCAxOCBMMTM0IDY2IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMTEiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik02NCA4MCBMOTQgNDggTDExNCA3MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIvPgogIDxwYXRoIGQ9Ik0xMTAgNDAgTDEzNCAzMSBMMTU4IDQwIFY2MCBDMTU4IDc3IDE0NyA4OCAxMzQgOTUgQzEyMSA4OCAxMTAgNzcgMTEwIDYwIFoiIGZpbGw9IiMwRjI3NTYiIHN0cm9rZT0iIzFFOUJGRiIgc3Ryb2tlLXdpZHRoPSI2LjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cGF0aCBkPSJNMTIyIDYxIEwxMzEgNzAgTDE0NyA1MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMUU5QkZGIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+PC9zdmc+">
+  <h1 id="prevNombre">Crear mi empresa</h1>
+  <p>Terreno Seguro · prevención de riesgos y trabajo en terreno</p>
+</header>
+<main>
+<form id="f" autocomplete="off">
+  <div class="card">
+    <h2>1. Datos de la empresa</h2>
+    <p class="muted">Aparecen en la app, en el panel y en los PDF (AST, OT, entregas de EPP).</p>
+    <div class="g">
+      <label class="full">Razón social<input name="empresa" required placeholder="Constructora López SpA"></label>
+      <label>RUT de la empresa<input name="rut_empresa" placeholder="76.123.456-7"></label>
+      <label>Nombre corto (el que ven los técnicos)<input name="marca" required placeholder="Constructora López"></label>
+      <label>Código de empresa <small>lo escribe el técnico la primera vez que abre la app</small><input name="codigo" required pattern="[a-z0-9]{3,20}" placeholder="clopez"></label>
+      <label>Rubro <small>define los formularios, cursos, matriz de riesgos y nombres que trae el sistema</small><select name="rubro"><option value="OTRO">Cargando…</option></select></label>
+      <label>Ciudad de los documentos<input name="ciudad" placeholder="Illapel"></label>
+      <label>Comunas donde trabaja <small>separadas por coma</small><input name="comunas" placeholder="Illapel, Salamanca"></label>
+      <label>Quién firma por la empresa<input name="representante" placeholder="Nombre del representante legal"></label>
+      <label>Correo que recibe los avisos<input name="correo" type="email" placeholder="prevencion@empresa.cl"></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Logo y colores</h2>
+    <p class="muted">Puedes cambiarlos después en el panel, en Configuración.</p>
+    <div class="g">
+      <label class="full">Logo <small>PNG o JPG de menos de 250 KB, idealmente cuadrado</small><input type="file" id="logo" accept="image/png,image/jpeg"></label>
+      <label>Color principal<input type="color" name="color_primario" value="#23306b"></label>
+      <label>Color de acento<input type="color" name="color_acento" value="#F28C28"></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Módulos que va a usar</h2>
+    <p class="muted">La prevención (AST, charlas, capacitaciones, EPP, matriz, incidentes, Ley Karin) viene siempre. Marca lo demás que necesites; se sugiere según el rubro.</p>
+    <div id="mods" class="muted">Cargando…</div>
+  </div>
+
+  <div class="card">
+    <h2>4. Administrador del sistema</h2>
+    <p class="muted">Con este RUT y PIN se entra al panel. Después puedes crear más usuarios.</p>
+    <div class="g">
+      <label>RUT<input name="a_rut" required placeholder="12.345.678-9"></label>
+      <label>Nombre<input name="a_nombre" required placeholder="Nombre y apellido"></label>
+      <label>Correo<input name="a_email" type="email"></label>
+      <label>Teléfono<input name="a_telefono" placeholder="+56 9 …"></label>
+      <label>PIN <small>4 a 8 números</small><input name="a_pin" type="password" inputmode="numeric" pattern="\d{4,8}" required></label>
+      <label>Repite el PIN<input name="a_pin2" type="password" inputmode="numeric" pattern="\d{4,8}" required></label>
+    </div>
+  </div>
+
+  <button id="btn" type="submit">Crear empresa</button>
+  <p id="err"></p>
+</form>
+<div id="listo" class="card fin" style="display:none"></div>
+</main>
+
+<script>
+var INFO = null, LOGO = null;
+var $ = function (s) { return document.querySelector(s); };
+var f = $('#f');
+
+function color() {
+  document.documentElement.style.setProperty('--p', f.color_primario.value);
+  document.documentElement.style.setProperty('--a', f.color_acento.value);
+}
+f.color_primario.oninput = color; f.color_acento.oninput = color;
+f.marca.oninput = function () {
+  $('#prevNombre').textContent = f.marca.value || 'Crear mi empresa';
+  if (!f.codigo.dataset.tocado) f.codigo.value = f.marca.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '').slice(0, 20);
+};
+f.codigo.oninput = function () { f.codigo.dataset.tocado = 1; f.codigo.value = f.codigo.value.toLowerCase().replace(/[^a-z0-9]/g, ''); };
+$('#logo').onchange = function () {
+  var file = this.files && this.files[0]; LOGO = null;
+  if (!file) return;
+  if (file.size > 250000) { alert('El logo pesa más de 250 KB. Achícalo (por ejemplo en squoosh.app) y vuelve a elegirlo.'); this.value = ''; return; }
+  var rd = new FileReader();
+  rd.onload = function () { LOGO = { data: rd.result, mime: file.type }; $('#prevLogo').src = rd.result; };
+  rd.readAsDataURL(file);
+};
+
+function pintarModulos() {
+  if (!INFO) return;
+  var apag = INFO.apagadosRubro[f.rubro.value] || [], grupos = {};
+  INFO.modulos.forEach(function (m) { (grupos[m[2]] = grupos[m[2]] || []).push(m); });
+  $('#mods').className = '';
+  $('#mods').innerHTML = Object.keys(grupos).map(function (g) {
+    return '<div class="grupo">' + g + '</div><div class="mods">' + grupos[g].map(function (m) {
+      return '<label><input type="checkbox" class="mod" value="' + m[0] + '"' + (apag.indexOf(m[0]) < 0 ? ' checked' : '') + '>' + m[1] + '</label>';
+    }).join('') + '</div>';
+  }).join('');
+}
+f.rubro.onchange = pintarModulos;
+
+google.script.run.withSuccessHandler(function (r) { INFO = r; f.rubro.innerHTML = r.rubros.map(function (x) { return '<option value="' + x[0] + '">' + esc(x[1]) + '</option>'; }).join(''); f.rubro.value = 'MINERIA'; pintarModulos(); })
+  .withFailureHandler(function (e) { $('#mods').textContent = e.message; $('#btn').disabled = true; }).apiAltaInfo();
+
+f.onsubmit = function (ev) {
+  ev.preventDefault();
+  $('#err').textContent = '';
+  if (f.a_pin.value !== f.a_pin2.value) { $('#err').textContent = 'Los dos PIN no coinciden.'; return; }
+  var d = {
+    empresa: f.empresa.value, rut_empresa: f.rut_empresa.value, marca: f.marca.value, codigo: f.codigo.value, rubro: f.rubro.value,
+    ciudad: f.ciudad.value, comunas: f.comunas.value, representante: f.representante.value, correo: f.correo.value,
+    color_primario: f.color_primario.value, color_acento: f.color_acento.value, logo: LOGO,
+    apagados: [].slice.call(document.querySelectorAll('.mod:not(:checked)')).map(function (i) { return i.value; }),
+    admin: { rut: f.a_rut.value, nombre: f.a_nombre.value, email: f.a_email.value, telefono: f.a_telefono.value, pin: f.a_pin.value }
+  };
+  $('#btn').disabled = true; $('#btn').textContent = 'Creando la planilla y las carpetas… (puede tardar un minuto)';
+  google.script.run.withSuccessHandler(function (r) {
+    f.style.display = 'none';
+    $('#listo').style.display = 'block';
+    $('#listo').innerHTML = '<h2 style="border:0;padding:0">✅ ' + esc(r.marca) + ' quedó creada</h2>' +
+      '<p>Código de empresa para la app de técnicos: <code>' + esc(r.codigo) + '</code></p>' +
+      '<a href="' + esc(r.urlPanel) + '" target="_top">Entrar al panel</a>' +
+      '<a class="sec" href="' + esc(r.url) + '" target="_top">Abrir la app de técnicos</a>' +
+      '<a class="sec" href="' + esc(r.planilla) + '" target="_blank">Ver la planilla</a>' +
+      '<a class="sec" href="' + esc(r.drive) + '" target="_blank">Ver la carpeta de Drive</a>' +
+      '<p class="muted">Primer paso en el panel: Personas y Usuarios (cargar a los trabajadores), y Vehículos.</p>';
+  }).withFailureHandler(function (e) {
+    $('#btn').disabled = false; $('#btn').textContent = 'Crear empresa';
+    $('#err').textContent = e.message || String(e);
+  }).apiAlta(d);
+};
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+</script>
+</body>
+</html>
