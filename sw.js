@@ -1,5 +1,5 @@
 /* Terreno Seguro: guarda la app en el teléfono para que abra aunque no haya señal. */
-const VERSION = 'ts-202611080040';
+const VERSION = 'ts-202611080055';
 const BASE = ['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'apple-touch-icon.png', 'icono-192.png', 'icono-512.png', 'empresa.html', 'logo.svg', 'fondo.jpg'];
 const CDN = /^(https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|unpkg\.com)\/)/;
 
