@@ -159,7 +159,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid #F28C28;outline-offset
   // Al volver la señal, refresca logo y colores sin molestar
   if (navigator.onLine) fetch(e.url + '?p=info' + (e.plataforma ? '&e=' + encodeURIComponent(e.codigo) : '')).then(function (r) { return r.json(); }).then(function (i) {
     if (!i || i.alta || i.error) return;
-    var n = Object.assign({}, e, { marca: i.marca || e.marca, logo: i.logo || e.logo, colores: i.colores || e.colores, vocab: i.vocab || {}, apagados: i.apagados || [] });
+    var n = Object.assign({}, e, { marca: i.marca || e.marca, logo: i.logo || e.logo, colores: i.colores || e.colores, vocab: i.vocab || {}, apagados: i.apagados || [], fondo: i.fondo || e.fondo || '' });
     localStorage.setItem('ts_empresa', JSON.stringify(n));
   }).catch(function () {});
 })();
@@ -1296,12 +1296,13 @@ var APP_B64 = [
 "bWVudEVsZW1lbnQuc3R5bGUuc2V0UHJvcGVydHkoJy0tZm9uZG8taW1nJywgYHVybChkYXRhOmltYWdlL2pwZWc7YmFzZTY0LCR7Yn0pYCk7IGRvY3VtZW50",
 "LmJvZHkuY2xhc3NMaXN0LmFkZCgnYmcnKTsgfQooZnVuY3Rpb24gKCkgewogIGxldCBjID0gbnVsbDsgdHJ5IHsgYyA9IGxvY2FsU3RvcmFnZS5nZXRJdGVt",
 "KCdhbl9mb25kbycpOyB9IGNhdGNoIChlKSB7fQogIGlmIChjKSBwb25lckZvbmRvKGMpOwogIGVsc2UgaWYgKHdpbmRvdy5FTVBSRVNBKSB7IGRvY3VtZW50",
-"LmRvY3VtZW50RWxlbWVudC5zdHlsZS5zZXRQcm9wZXJ0eSgnLS1mb25kby1pbWcnLCAndXJsKGZvbmRvLmpwZyknKTsgZG9jdW1lbnQuYm9keS5jbGFzc0xp",
-"c3QuYWRkKCdiZycpOyB9CiAgbGV0IHQgPSAwOyB0cnkgeyB0ID0gTnVtYmVyKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdhbl9mb25kb190JykpIHx8IDA7IH0g",
-"Y2F0Y2ggKGUpIHt9CiAgaWYgKGMgJiYgRGF0ZS5ub3coKSAtIHQgPCA4NjRlNSkgcmV0dXJuOyAgIC8vIGxhIGltYWdlbiBzZSByZXZpc2EgdW5hIHZleiBh",
-"bCBkw61hCiAgdHJ5IHsgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2FuX2ZvbmRvX3QnLCBTdHJpbmcoRGF0ZS5ub3coKSkpOyB9IGNhdGNoIChlKSB7fQogIGFw",
-"aSgnYXBpRm9uZG8nKS50aGVuKGIgPT4geyBpZiAoYiAmJiBiICE9PSBjKSB7IHBvbmVyRm9uZG8oYik7IHRyeSB7IGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdh",
-"bl9mb25kbycsIGIpOyB9IGNhdGNoIChlKSB7fSB9IH0pLmNhdGNoKCgpID0+IHt9KTsKfSkoKTsKYm9vdCgpOwo="
+"LmRvY3VtZW50RWxlbWVudC5zdHlsZS5zZXRQcm9wZXJ0eSgnLS1mb25kby1pbWcnLCAndXJsKCcgKyAod2luZG93LkVNUFJFU0EuZm9uZG8gfHwgJ2ZvbmRv",
+"LmpwZycpICsgJyknKTsgZG9jdW1lbnQuYm9keS5jbGFzc0xpc3QuYWRkKCdiZycpOyB9CiAgbGV0IHQgPSAwOyB0cnkgeyB0ID0gTnVtYmVyKGxvY2FsU3Rv",
+"cmFnZS5nZXRJdGVtKCdhbl9mb25kb190JykpIHx8IDA7IH0gY2F0Y2ggKGUpIHt9CiAgaWYgKGMgJiYgRGF0ZS5ub3coKSAtIHQgPCA4NjRlNSkgcmV0dXJu",
+"OyAgIC8vIGxhIGltYWdlbiBzZSByZXZpc2EgdW5hIHZleiBhbCBkw61hCiAgdHJ5IHsgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2FuX2ZvbmRvX3QnLCBTdHJp",
+"bmcoRGF0ZS5ub3coKSkpOyB9IGNhdGNoIChlKSB7fQogIGFwaSgnYXBpRm9uZG8nKS50aGVuKGIgPT4geyBpZiAoYiAmJiBiICE9PSBjKSB7IHBvbmVyRm9u",
+"ZG8oYik7IHRyeSB7IGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdhbl9mb25kbycsIGIpOyB9IGNhdGNoIChlKSB7fSB9IH0pLmNhdGNoKCgpID0+IHt9KTsKfSko",
+"KTsKYm9vdCgpOwo="
 ].join("");
 (function(){try{var t=new TextDecoder().decode(Uint8Array.from(atob(APP_B64),function(c){return c.charCodeAt(0)}));var e=document.createElement("script");e.text=t;document.body.appendChild(e);}catch(err){document.body.insertAdjacentHTML("afterbegin","<p style=\"padding:16px;color:#c62828\">No se pudo iniciar la app: "+err.message+"</p>");}})();
 </script>
