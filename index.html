@@ -138,6 +138,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid #F28C28;outline-offset
   try { e = JSON.parse(localStorage.getItem('ts_empresa') || 'null'); } catch (x) {}
   var c = q.get('c');
   if (q.has('empresa') || !e || !e.url || (c && c !== e.codigo)) { location.replace('empresa.html' + (c ? '?c=' + encodeURIComponent(c) : '')); return; }
+  // El fondo guardado es de una empresa: si cambió la empresa, se olvida
+  try { if (localStorage.getItem('ts_fondo_de') !== e.codigo) { localStorage.removeItem('an_fondo'); localStorage.removeItem('an_fondo_t'); localStorage.setItem('ts_fondo_de', e.codigo); } } catch (x) {}
   window.RPC_URL = e.url;
   window.EMPRESA = e;
   window.MARCA_EMPRESA = e.marca || 'Terreno Seguro';
@@ -1291,11 +1293,13 @@ var APP_B64 = [
 "ZW4gKi8KZnVuY3Rpb24gcG9uZXJGb25kbyhiKSB7IGlmICghYikgcmV0dXJuOyBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuc3R5bGUuc2V0UHJvcGVydHko",
 "Jy0tZm9uZG8taW1nJywgYHVybChkYXRhOmltYWdlL2pwZWc7YmFzZTY0LCR7Yn0pYCk7IGRvY3VtZW50LmJvZHkuY2xhc3NMaXN0LmFkZCgnYmcnKTsgfQoo",
 "ZnVuY3Rpb24gKCkgewogIGxldCBjID0gbnVsbDsgdHJ5IHsgYyA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdhbl9mb25kbycpOyB9IGNhdGNoIChlKSB7fQog",
-"IGlmIChjKSBwb25lckZvbmRvKGMpOwogIGxldCB0ID0gMDsgdHJ5IHsgdCA9IE51bWJlcihsb2NhbFN0b3JhZ2UuZ2V0SXRlbSgnYW5fZm9uZG9fdCcpKSB8",
-"fCAwOyB9IGNhdGNoIChlKSB7fQogIGlmIChjICYmIERhdGUubm93KCkgLSB0IDwgODY0ZTUpIHJldHVybjsgICAvLyBsYSBpbWFnZW4gc2UgcmV2aXNhIHVu",
-"YSB2ZXogYWwgZMOtYQogIHRyeSB7IGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdhbl9mb25kb190JywgU3RyaW5nKERhdGUubm93KCkpKTsgfSBjYXRjaCAoZSkg",
-"e30KICBhcGkoJ2FwaUZvbmRvJykudGhlbihiID0+IHsgaWYgKGIgJiYgYiAhPT0gYykgeyBwb25lckZvbmRvKGIpOyB0cnkgeyBsb2NhbFN0b3JhZ2Uuc2V0",
-"SXRlbSgnYW5fZm9uZG8nLCBiKTsgfSBjYXRjaCAoZSkge30gfSB9KS5jYXRjaCgoKSA9PiB7fSk7Cn0pKCk7CmJvb3QoKTsK"
+"IGlmIChjKSBwb25lckZvbmRvKGMpOwogIGVsc2UgaWYgKHdpbmRvdy5FTVBSRVNBKSB7IGRvY3VtZW50LmRvY3VtZW50RWxlbWVudC5zdHlsZS5zZXRQcm9w",
+"ZXJ0eSgnLS1mb25kby1pbWcnLCAndXJsKGZvbmRvLmpwZyknKTsgZG9jdW1lbnQuYm9keS5jbGFzc0xpc3QuYWRkKCdiZycpOyB9CiAgbGV0IHQgPSAwOyB0",
+"cnkgeyB0ID0gTnVtYmVyKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdhbl9mb25kb190JykpIHx8IDA7IH0gY2F0Y2ggKGUpIHt9CiAgaWYgKGMgJiYgRGF0ZS5u",
+"b3coKSAtIHQgPCA4NjRlNSkgcmV0dXJuOyAgIC8vIGxhIGltYWdlbiBzZSByZXZpc2EgdW5hIHZleiBhbCBkw61hCiAgdHJ5IHsgbG9jYWxTdG9yYWdlLnNl",
+"dEl0ZW0oJ2FuX2ZvbmRvX3QnLCBTdHJpbmcoRGF0ZS5ub3coKSkpOyB9IGNhdGNoIChlKSB7fQogIGFwaSgnYXBpRm9uZG8nKS50aGVuKGIgPT4geyBpZiAo",
+"YiAmJiBiICE9PSBjKSB7IHBvbmVyRm9uZG8oYik7IHRyeSB7IGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdhbl9mb25kbycsIGIpOyB9IGNhdGNoIChlKSB7fSB9",
+"IH0pLmNhdGNoKCgpID0+IHt9KTsKfSkoKTsKYm9vdCgpOwo="
 ].join("");
 (function(){try{var t=new TextDecoder().decode(Uint8Array.from(atob(APP_B64),function(c){return c.charCodeAt(0)}));var e=document.createElement("script");e.text=t;document.body.appendChild(e);}catch(err){document.body.insertAdjacentHTML("afterbegin","<p style=\"padding:16px;color:#c62828\">No se pudo iniciar la app: "+err.message+"</p>");}})();
 </script>
